@@ -14,8 +14,8 @@ import (
 	"time"
 
 	"github.com/acobaugh/osrelease"
-	"github.com/givensuman/toad/pkg/shell"
 	"github.com/docker/go-units"
+	"github.com/givensuman/toad/pkg/shell"
 	"github.com/godbus/dbus/v5"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"

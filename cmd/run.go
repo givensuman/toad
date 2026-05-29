@@ -14,12 +14,12 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/fsnotify/fsnotify"
 	"github.com/givensuman/toad/pkg/nvidia"
 	"github.com/givensuman/toad/pkg/podman"
 	"github.com/givensuman/toad/pkg/shell"
 	"github.com/givensuman/toad/pkg/term"
 	"github.com/givensuman/toad/pkg/utils"
-	"github.com/fsnotify/fsnotify"
 	"github.com/go-logfmt/logfmt"
 	"github.com/google/renameio/v2"
 	"github.com/sirupsen/logrus"
@@ -115,12 +115,7 @@ func run(cmd *cobra.Command, args []string) error {
 	}
 
 	if len(args) == 0 {
-		var builder strings.Builder
-		fmt.Fprintf(&builder, "missing argument for \"run\"\n")
-		fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
-
-		errMsg := builder.String()
-		return errors.New(errMsg)
+		return usageError("missing argument for \"run\"")
 	}
 
 	command := args
@@ -222,13 +217,7 @@ func runCommand(container string,
 			fmt.Fprintf(os.Stderr, "Use the 'create' command to create a different Toolbx.\n")
 			fmt.Fprintf(os.Stderr, "Run '%s --help' for usage.\n", executableBase)
 		} else {
-			var builder strings.Builder
-			fmt.Fprintf(&builder, "container %s not found\n", container)
-			fmt.Fprintf(&builder, "Use the '--container' option to select a Toolbx.\n")
-			fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
-
-			errMsg := builder.String()
-			return errors.New(errMsg)
+			return usageError("container %s not found\nUse the '--container' option to select a Toolbx.", container)
 		}
 	}
 
@@ -243,12 +232,7 @@ func runCommand(container string,
 	logrus.Debugf("Entry point of container %s is %s (PID=%d)", container, entryPoint, entryPointPID)
 
 	if entryPoint != "toolbox" {
-		var builder strings.Builder
-		fmt.Fprintf(&builder, "container %s is too old and no longer supported\n", container)
-		fmt.Fprintf(&builder, "Recreate it with Toolbx version 0.0.97 or newer.")
-
-		errMsg := builder.String()
-		return errors.New(errMsg)
+		return usageError("container %s is too old and no longer supported\nRecreate it with Toolbx version 0.0.97 or newer.", container)
 	}
 
 	if err := callFlatpakSessionHelper(containerObj); err != nil {
@@ -260,12 +244,7 @@ func runCommand(container string,
 	cdiSpecForNvidia, err := nvidia.GenerateCDISpec()
 	if err != nil {
 		if errors.Is(err, nvidia.ErrNVMLDriverLibraryVersionMismatch) {
-			var builder strings.Builder
-			builder.WriteString("the proprietary NVIDIA driver's kernel and user space don't match\n")
-			builder.WriteString("Check the host operating system and systemd journal.")
-
-			errMsg := builder.String()
-			return errors.New(errMsg)
+			return usageError("the proprietary NVIDIA driver's kernel and user space don't match\nCheck the host operating system and systemd journal.")
 		} else if !errors.Is(err, nvidia.ErrPlatformUnsupported) {
 			return err
 		}

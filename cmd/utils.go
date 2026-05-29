@@ -32,6 +32,12 @@ var (
 	errHUP = errors.New("HUP")
 )
 
+func usageError(format string, args ...any) error {
+	msg := fmt.Sprintf(format, args...)
+	return errors.New(msg + "\nRun '" + executableBase + " --help' for usage.")
+}
+
+
 // askForConfirmation prints prompt to stdout and waits for response from the
 // user
 //
@@ -246,100 +252,41 @@ func discardInputAsync(ctx context.Context) (<-chan int, <-chan error) {
 }
 
 func createErrorContainerNotFound(container string) error {
-	var builder strings.Builder
-	fmt.Fprintf(&builder, "container %s not found\n", container)
-	fmt.Fprintf(&builder, "Use the 'create' command to create a Toolbx.\n")
-	fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
-
-	errMsg := builder.String()
-	return errors.New(errMsg)
+	return usageError("container %s not found\nUse the 'create' command to create a Toolbx.", container)
 }
 
 func createErrorDistroWithoutRelease(distro string) error {
-	var builder strings.Builder
-	fmt.Fprintf(&builder, "option '--release' is needed\n")
-	fmt.Fprintf(&builder, "Distribution %s doesn't match the host.\n", distro)
-	fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
-
-	errMsg := builder.String()
-	return errors.New(errMsg)
+	return usageError("option '--release' is needed\nDistribution %s doesn't match the host.", distro)
 }
 
 func createErrorInvalidContainer(containerArg string) error {
-	var builder strings.Builder
-	fmt.Fprintf(&builder, "invalid argument for '%s'\n", containerArg)
-	fmt.Fprintf(&builder, "Container names must match '%s'.\n", utils.ContainerNameRegexp)
-	fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
-
-	errMsg := builder.String()
-	return errors.New(errMsg)
+	return usageError("invalid argument for '%s'\nContainer names must match '%s'.", containerArg, utils.ContainerNameRegexp)
 }
 
 func createErrorInvalidDistro(distro string) error {
-	var builder strings.Builder
-	fmt.Fprintf(&builder, "invalid argument for '--distro'\n")
-	fmt.Fprintf(&builder, "Distribution %s is unsupported.\n", distro)
-	fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
-
-	errMsg := builder.String()
-	return errors.New(errMsg)
+	return usageError("invalid argument for '--distro'\nDistribution %s is unsupported.", distro)
 }
 
 func createErrorInvalidImageForContainerName(container string) error {
-	var builder strings.Builder
-	fmt.Fprintf(&builder, "invalid argument for '--image'\n")
-	fmt.Fprintf(&builder, "Container name %s generated from image is invalid.\n", container)
-	fmt.Fprintf(&builder, "Container names must match '%s'.\n", utils.ContainerNameRegexp)
-	fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
-
-	errMsg := builder.String()
-	return errors.New(errMsg)
+	return usageError("invalid argument for '--image'\nContainer name %s generated from image is invalid.\nContainer names must match '%s'.", container, utils.ContainerNameRegexp)
 }
 
 func createErrorInvalidImageWithoutBasename() error {
-	var builder strings.Builder
-	fmt.Fprintf(&builder, "invalid argument for '--image'\n")
-	fmt.Fprintf(&builder, "Images must have basenames.\n")
-	fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
-
-	errMsg := builder.String()
-	return errors.New(errMsg)
+	return usageError("invalid argument for '--image'\nImages must have basenames.")
 }
 
 func createErrorInvalidRelease(hint string) error {
-	var builder strings.Builder
-	fmt.Fprintf(&builder, "invalid argument for '--release'\n")
-	fmt.Fprintf(&builder, "%s\n", hint)
-	fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
-
-	errMsg := builder.String()
-	return errors.New(errMsg)
+	return usageError("invalid argument for '--release'\n%s", hint)
 }
 
 func createErrorProfileDNotFound() error {
 	const profileD = "/etc/profile.d"
-
-	var builder strings.Builder
-	fmt.Fprintf(&builder, "directory %s not found in container\n", profileD)
-	fmt.Fprintf(&builder, "The shell start-up scripts must include files from %s in\n", profileD)
-	fmt.Fprintf(&builder, "containers.\n")
-	fmt.Fprintf(&builder, "Go to https://containertoolbx.org/ for further information.")
-
-	errMsg := builder.String()
-	return errors.New(errMsg)
+	return usageError("directory %s not found in container\nThe shell start-up scripts must include files from %s in\ncontainers.\nGo to https://containertoolbx.org/ for further information.", profileD, profileD)
 }
 
 func createErrorSudoersDNotFound() error {
 	const sudoersD = "/etc/sudoers.d"
-
-	var builder strings.Builder
-	fmt.Fprintf(&builder, "directory %s not found in container\n", sudoersD)
-	fmt.Fprintf(&builder, "The sudoers(5) policy must include files from %s in\n", sudoersD)
-	fmt.Fprintf(&builder, "containers with /etc/pkcs11/modules and p11-kit-client.so.\n")
-	fmt.Fprintf(&builder, "Go to https://containertoolbx.org/ for further information.")
-
-	errMsg := builder.String()
-	return errors.New(errMsg)
+	return usageError("directory %s not found in container\nThe sudoers(5) policy must include files from %s in\ncontainers with /etc/pkcs11/modules and p11-kit-client.so.\nGo to https://containertoolbx.org/ for further information.", sudoersD, sudoersD)
 }
 
 func getCDIFileForNvidia(targetUser *user.User) (string, error) {

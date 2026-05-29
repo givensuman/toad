@@ -18,7 +18,7 @@ install:
 run *args:
     #!/usr/bin/env bash
     export DEBUG=true
-    go run {{ args }}
+    go run . {{ args }}
 
 # Run program tests
 test:

@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/givensuman/toad/pkg/podman"
 	"github.com/givensuman/toad/pkg/utils"
@@ -70,12 +69,7 @@ func rmi(cmd *cobra.Command, args []string) error {
 		}
 	} else {
 		if len(args) == 0 {
-			var builder strings.Builder
-			fmt.Fprintf(&builder, "missing argument for \"rmi\"\n")
-			fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
-
-			errMsg := builder.String()
-			return errors.New(errMsg)
+			return usageError("missing argument for \"rmi\"")
 		}
 
 		for _, image := range args {

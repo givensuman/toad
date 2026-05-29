@@ -11,13 +11,13 @@ import (
 	"time"
 
 	"github.com/briandowns/spinner"
+	"github.com/docker/go-units"
 	"github.com/givensuman/go-namesgenerator"
 	"github.com/givensuman/toad/pkg/podman"
 	"github.com/givensuman/toad/pkg/shell"
 	"github.com/givensuman/toad/pkg/skopeo"
 	"github.com/givensuman/toad/pkg/term"
 	"github.com/givensuman/toad/pkg/utils"
-	"github.com/docker/go-units"
 	"github.com/godbus/dbus/v5"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -128,32 +128,16 @@ func create(cmd *cobra.Command, args []string) error {
 	}
 
 	if cmd.Flag("distro").Changed && cmd.Flag("image").Changed {
-		var builder strings.Builder
-		fmt.Fprintf(&builder, "options --distro and --image cannot be used together\n")
-		fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
-
-		errMsg := builder.String()
-		return errors.New(errMsg)
+		return usageError("options --distro and --image cannot be used together")
 	}
 
 	if cmd.Flag("image").Changed && cmd.Flag("release").Changed {
-		var builder strings.Builder
-		fmt.Fprintf(&builder, "options --image and --release cannot be used together\n")
-		fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
-
-		errMsg := builder.String()
-		return errors.New(errMsg)
+		return usageError("options --image and --release cannot be used together")
 	}
 
 	if cmd.Flag("authfile").Changed {
 		if !utils.PathExists(createFlags.authFile) {
-			var builder strings.Builder
-			fmt.Fprintf(&builder, "file %s not found\n", createFlags.authFile)
-			fmt.Fprintf(&builder, "'podman login' can be used to create the file.\n")
-			fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
-
-			errMsg := builder.String()
-			return errors.New(errMsg)
+			return usageError("file %s not found\n'podman login' can be used to create the file.", createFlags.authFile)
 		}
 	}
 
@@ -227,13 +211,7 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 	logrus.Debugf("Checking if container %s already exists", container)
 
 	if exists, _ := podman.ContainerExists(container); exists {
-		var builder strings.Builder
-		fmt.Fprintf(&builder, "container %s already exists\n", container)
-		fmt.Fprintf(&builder, "Enter with: %s\n", enterCommand)
-		fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
-
-		errMsg := builder.String()
-		return errors.New(errMsg)
+		return usageError("container %s already exists\nEnter with: %s", container, enterCommand)
 	}
 
 	pulled, err := pullImage(image, release, authFile)
@@ -754,13 +732,7 @@ func pullImage(image, release, authFile string) (bool, error) {
 
 	if promptForDownload {
 		if !term.IsTerminal(os.Stdin) || !term.IsTerminal(os.Stdout) {
-			var builder strings.Builder
-			fmt.Fprintf(&builder, "image required to create Toolbx container.\n")
-			fmt.Fprintf(&builder, "Use option '--assumeyes' to download the image.\n")
-			fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
-
-			errMsg := builder.String()
-			return false, errors.New(errMsg)
+			return false, usageError("image required to create Toolbx container.\nUse option '--assumeyes' to download the image.")
 		}
 
 		shouldPullImage = showPromptForDownload(imageFull)

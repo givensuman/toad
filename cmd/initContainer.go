@@ -14,10 +14,10 @@ import (
 	"time"
 
 	"github.com/acobaugh/osrelease"
+	"github.com/fsnotify/fsnotify"
 	"github.com/givensuman/toad/pkg/pkgmanager"
 	"github.com/givensuman/toad/pkg/shell"
 	"github.com/givensuman/toad/pkg/utils"
-	"github.com/fsnotify/fsnotify"
 	"github.com/google/renameio/v2"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"

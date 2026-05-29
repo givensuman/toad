@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/givensuman/toad/pkg/podman"
 	"github.com/givensuman/toad/pkg/utils"
@@ -70,12 +69,7 @@ func rm(cmd *cobra.Command, args []string) error {
 		}
 	} else {
 		if len(args) == 0 {
-			var builder strings.Builder
-			fmt.Fprintf(&builder, "missing argument for \"rm\"\n")
-			fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
-
-			errMsg := builder.String()
-			return errors.New(errMsg)
+			return usageError("missing argument for \"rm\"")
 		}
 
 		for _, container := range args {
