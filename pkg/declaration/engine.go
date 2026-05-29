@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/givensuman/toad/pkg/utils"
+	"github.com/givensuman/go-namesgenerator"
 	"github.com/sirupsen/logrus"
 )
 
@@ -71,7 +71,7 @@ func Up(opts *UpOptions) (*UpResult, error) {
 
 	container := decl.Container
 	if container == "" {
-		container = utils.GenerateRandomContainerName()
+		container = namesgenerator.GetRandomName(0)
 	}
 
 	return &UpResult{Container: container}, nil

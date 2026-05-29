@@ -45,7 +45,7 @@ var (
 
 	rootCmd = &cobra.Command{
 		Use:               "toad",
-		Short:             "Declarative development containers powered by Podman",
+		Short:             "tool for oci-abstracted devcontainers",
 		PersistentPreRunE: preRun,
 		RunE:              rootRun,
 		Version:           version.GetVersion(),

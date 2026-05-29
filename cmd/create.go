@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/briandowns/spinner"
+	"github.com/givensuman/go-namesgenerator"
 	"github.com/givensuman/toad/pkg/podman"
 	"github.com/givensuman/toad/pkg/shell"
 	"github.com/givensuman/toad/pkg/skopeo"
@@ -194,7 +195,7 @@ func create(cmd *cobra.Command, args []string) error {
 	}
 
 	if len(args) == 0 && createFlags.container == "" {
-		container = utils.GenerateRandomContainerName()
+		container = namesgenerator.GetRandomName(0)
 	}
 
 	if len(createFlags.withPkgs) > 0 {
