@@ -9,11 +9,9 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"os/exec"
 	"os/user"
 	"path/filepath"
 	"strings"
-	"syscall"
 
 	"github.com/givensuman/toad/pkg/shell"
 	"github.com/givensuman/toad/pkg/utils"
@@ -353,16 +351,6 @@ func getCurrentUserShell() (string, error) {
 	return passwdLineParts[passwdLinePartsCount-1], nil
 }
 
-func getUsageForCommonCommands() string {
-	var builder strings.Builder
-	builder.WriteString("create    Create a new Toolbx container\n")
-	builder.WriteString("enter     Enter an existing Toolbx container\n")
-	builder.WriteString("list      List all existing Toolbx containers and images\n")
-
-	usage := builder.String()
-	return usage
-}
-
 func poll(pollFn pollFunc, eventFD int32, fds ...int32) error {
 	if len(fds) == 0 {
 		panic("file descriptors not specified")
@@ -472,44 +460,6 @@ func resolveContainerAndImageNames(container, containerArg, distroCLI, imageCLI,
 	}
 
 	return container, image, release, nil
-}
-
-// showManual tries to open the specified manual page using man on stdout
-func showManual(manual string) error {
-	manBinary, err := exec.LookPath("man")
-	if err != nil {
-		if errors.Is(err, exec.ErrNotFound) {
-			fmt.Printf("toolbox - Tool for interactive command line environments on Linux\n")
-			fmt.Printf("\n")
-			fmt.Printf("Common commands are:\n")
-
-			usage := getUsageForCommonCommands()
-			fmt.Printf("%s", usage)
-
-			fmt.Printf("\n")
-			fmt.Printf("Go to https://containertoolbx.org/ for further information.\n")
-			return nil
-		}
-
-		return errors.New("failed to look up man(1)")
-	}
-
-	manualArgs := []string{"man", manual}
-	env := os.Environ()
-
-	stderrFd := os.Stderr.Fd()
-	stderrFdInt := int(stderrFd)
-	stdoutFd := os.Stdout.Fd()
-	stdoutFdInt := int(stdoutFd)
-	if err := syscall.Dup3(stdoutFdInt, stderrFdInt, 0); err != nil {
-		return errors.New("failed to redirect standard error to standard output")
-	}
-
-	if err := syscall.Exec(manBinary, manualArgs, env); err != nil {
-		return errors.New("failed to invoke man(1)")
-	}
-
-	return nil
 }
 
 func watchContextForEventFD(ctx context.Context, eventFD int) {

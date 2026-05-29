@@ -3,7 +3,6 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"os"
 
 	"github.com/givensuman/toad/pkg/declaration"
 	"github.com/givensuman/toad/pkg/podman"
@@ -38,7 +37,6 @@ func init() {
 		false,
 		"Also remove the image")
 
-	downCmd.SetHelpFunc(downHelp)
 	rootCmd.AddCommand(downCmd)
 }
 
@@ -84,20 +82,4 @@ func down(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func downHelp(cmd *cobra.Command, args []string) {
-	if utils.IsInsideContainer() {
-		if !utils.IsInsideToolboxContainer() {
-			fmt.Fprintf(os.Stderr, "Error: this is not a Toolbx container\n")
-			return
-		}
 
-		if _, err := utils.ForwardToHost(); err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-			return
-		}
-
-		return
-	}
-
-	cmd.Help()
-}

@@ -3,7 +3,6 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"os"
 
 	"github.com/givensuman/toad/pkg/utils"
 	"github.com/spf13/cobra"
@@ -54,7 +53,6 @@ func init() {
 		panic(panicMsg)
 	}
 
-	enterCmd.SetHelpFunc(enterHelp)
 	rootCmd.AddCommand(enterCmd)
 }
 
@@ -112,23 +110,4 @@ func enter(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func enterHelp(cmd *cobra.Command, args []string) {
-	if utils.IsInsideContainer() {
-		if !utils.IsInsideToolboxContainer() {
-			fmt.Fprintf(os.Stderr, "Error: this is not a Toolbx container\n")
-			return
-		}
 
-		if _, err := utils.ForwardToHost(); err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-			return
-		}
-
-		return
-	}
-
-	if err := showManual("toolbox-enter"); err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-		return
-	}
-}

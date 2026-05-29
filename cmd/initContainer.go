@@ -130,7 +130,6 @@ func init() {
 		panic("Could not mark flag --user as required")
 	}
 
-	initContainerCmd.SetHelpFunc(initContainerHelp)
 	rootCmd.AddCommand(initContainerCmd)
 }
 
@@ -431,27 +430,6 @@ func getContainerDistro() (string, error) {
 		return "", err
 	}
 	return osRelease["ID"], nil
-}
-
-func initContainerHelp(cmd *cobra.Command, args []string) {
-	if utils.IsInsideContainer() {
-		if !utils.IsInsideToolboxContainer() {
-			fmt.Fprintf(os.Stderr, "Error: this is not a Toolbx container\n")
-			return
-		}
-
-		if _, err := utils.ForwardToHost(); err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-			return
-		}
-
-		return
-	}
-
-	if err := showManual("toolbox-init-container"); err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-		return
-	}
 }
 
 func applyCDISpecForNvidia(spec *specs.Spec) error {

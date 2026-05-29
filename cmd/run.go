@@ -80,8 +80,6 @@ func init() {
 		"",
 		"Run command inside a Toolbx container for a different operating system release than the host")
 
-	runCmd.SetHelpFunc(runHelp)
-
 	if err := runCmd.RegisterFlagCompletionFunc("container", completionContainerNames); err != nil {
 		panicMsg := fmt.Sprintf("failed to register flag completion function: %v", err)
 		panic(panicMsg)
@@ -455,27 +453,6 @@ func runCommandWithFallbacks(container string,
 	}
 
 	// code should not be reached
-}
-
-func runHelp(cmd *cobra.Command, args []string) {
-	if utils.IsInsideContainer() {
-		if !utils.IsInsideToolboxContainer() {
-			fmt.Fprintf(os.Stderr, "Error: this is not a Toolbx container\n")
-			return
-		}
-
-		if _, err := utils.ForwardToHost(); err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-			return
-		}
-
-		return
-	}
-
-	if err := showManual("toolbox-run"); err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-		return
-	}
 }
 
 func callFlatpakSessionHelper(container podman.Container) error {

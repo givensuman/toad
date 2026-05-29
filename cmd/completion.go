@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"os"
-	"strings"
 
 	"github.com/givensuman/toad/pkg/podman"
 	"github.com/givensuman/toad/pkg/utils"
@@ -42,19 +41,6 @@ func completion(cmd *cobra.Command, args []string) error {
 
 func completionEmpty(_ *cobra.Command, _ []string, _ string) ([]string, cobra.ShellCompDirective) {
 	return nil, cobra.ShellCompDirectiveNoFileComp
-}
-
-func completionCommands(cmd *cobra.Command, _ []string, _ string) ([]string, cobra.ShellCompDirective) {
-	commandNames := []string{}
-	commands := cmd.Root().Commands()
-	for _, command := range commands {
-		if strings.Contains(command.Name(), "complet") {
-			continue
-		}
-		commandNames = append(commandNames, command.Name())
-	}
-
-	return commandNames, cobra.ShellCompDirectiveNoFileComp
 }
 
 func completionContainerNames(_ *cobra.Command, _ []string, _ string) ([]string, cobra.ShellCompDirective) {

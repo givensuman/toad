@@ -36,7 +36,6 @@ func init() {
 		false,
 		"Force the removal of Toolbx images that are used by Toolbx containers")
 
-	rmiCmd.SetHelpFunc(rmiHelp)
 	rootCmd.AddCommand(rmiCmd)
 }
 
@@ -94,23 +93,4 @@ func rmi(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func rmiHelp(cmd *cobra.Command, args []string) {
-	if utils.IsInsideContainer() {
-		if !utils.IsInsideToolboxContainer() {
-			fmt.Fprintf(os.Stderr, "Error: this is not a Toolbx container\n")
-			return
-		}
 
-		if _, err := utils.ForwardToHost(); err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-			return
-		}
-
-		return
-	}
-
-	if err := showManual("toolbox-rmi"); err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-		return
-	}
-}

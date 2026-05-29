@@ -102,8 +102,6 @@ func init() {
 		[]string{},
 		"Extra flags to pass to 'podman create'")
 
-	createCmd.SetHelpFunc(createHelp)
-
 	if err := createCmd.RegisterFlagCompletionFunc("distro", completionDistroNames); err != nil {
 		panicMsg := fmt.Sprintf("failed to register flag completion function: %v", err)
 		panic(panicMsg)
@@ -521,27 +519,6 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 	}
 
 	return nil
-}
-
-func createHelp(cmd *cobra.Command, args []string) {
-	if utils.IsInsideContainer() {
-		if !utils.IsInsideToolboxContainer() {
-			fmt.Fprintf(os.Stderr, "Error: this is not a Toolbx container\n")
-			return
-		}
-
-		if _, err := utils.ForwardToHost(); err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-			return
-		}
-
-		return
-	}
-
-	if err := showManual("toolbox-create"); err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-		return
-	}
 }
 
 func getDBusSystemSocket() (string, error) {

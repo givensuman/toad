@@ -110,10 +110,16 @@ func init() {
 		panic(panicMsg)
 	}
 
-	rootCmd.SetHelpFunc(rootHelp)
+	rootCmd.SetHelpTemplate(`Usage:  {{.Use}} [command]
 
-	usageTemplate := fmt.Sprintf("Run '%s --help' for usage.", executableBase)
-	rootCmd.SetUsageTemplate(usageTemplate)
+{{.Short}}
+
+Commands:
+{{range .VisibleCommands}}{{.Name | printf "  %-12s"}}{{.Short}}
+{{end}}
+
+Run '{{.Use}} <command> --help' for more details on a command.
+`)
 }
 
 func preRun(cmd *cobra.Command, args []string) error {
@@ -167,36 +173,6 @@ func preRun(cmd *cobra.Command, args []string) error {
 	}
 
 	return nil
-}
-
-func rootHelp(cmd *cobra.Command, args []string) {
-	if utils.IsInsideContainer() {
-		if !utils.IsInsideToolboxContainer() {
-			fmt.Fprintf(os.Stderr, "Error: this is not a Toolbx container\n")
-			return
-		}
-
-		if _, err := utils.ForwardToHost(); err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-			return
-		}
-
-		return
-	}
-
-	manual := "toad"
-
-	for _, arg := range args {
-		if !strings.HasPrefix(arg, "-") {
-			manual = manual + "-" + arg
-			break
-		}
-	}
-
-	if err := showManual(manual); err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-		return
-	}
 }
 
 func rootRun(cmd *cobra.Command, args []string) error {

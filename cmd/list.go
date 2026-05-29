@@ -42,7 +42,6 @@ func init() {
 		false,
 		"List only Toolbx images, not containers")
 
-	listCmd.SetHelpFunc(listHelp)
 	rootCmd.AddCommand(listCmd)
 }
 
@@ -91,27 +90,6 @@ func list(cmd *cobra.Command, args []string) error {
 
 	listOutput(images, containers)
 	return nil
-}
-
-func listHelp(cmd *cobra.Command, args []string) {
-	if utils.IsInsideContainer() {
-		if !utils.IsInsideToolboxContainer() {
-			fmt.Fprintf(os.Stderr, "Error: this is not a Toolbx container\n")
-			return
-		}
-
-		if _, err := utils.ForwardToHost(); err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-			return
-		}
-
-		return
-	}
-
-	if err := showManual("toolbox-list"); err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-		return
-	}
 }
 
 func listOutput(images *podman.Images, containers *podman.Containers) {

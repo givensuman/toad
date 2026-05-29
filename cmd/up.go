@@ -3,7 +3,6 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"os"
 
 	"github.com/givensuman/toad/pkg/declaration"
 	"github.com/givensuman/toad/pkg/utils"
@@ -30,7 +29,6 @@ func init() {
 		"",
 		"Path to the directory containing toad.yaml")
 
-	upCmd.SetHelpFunc(upHelp)
 	rootCmd.AddCommand(upCmd)
 }
 
@@ -56,20 +54,4 @@ func up(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func upHelp(cmd *cobra.Command, args []string) {
-	if utils.IsInsideContainer() {
-		if !utils.IsInsideToolboxContainer() {
-			fmt.Fprintf(os.Stderr, "Error: this is not a Toolbx container\n")
-			return
-		}
 
-		if _, err := utils.ForwardToHost(); err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-			return
-		}
-
-		return
-	}
-
-	cmd.Help()
-}

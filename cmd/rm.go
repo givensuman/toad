@@ -36,7 +36,6 @@ func init() {
 		false,
 		"Force the removal of running and paused Toolbx containers")
 
-	rmCmd.SetHelpFunc(rmHelp)
 	rootCmd.AddCommand(rmCmd)
 }
 
@@ -94,23 +93,4 @@ func rm(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func rmHelp(cmd *cobra.Command, args []string) {
-	if utils.IsInsideContainer() {
-		if !utils.IsInsideToolboxContainer() {
-			fmt.Fprintf(os.Stderr, "Error: this is not a Toolbx container\n")
-			return
-		}
 
-		if _, err := utils.ForwardToHost(); err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-			return
-		}
-
-		return
-	}
-
-	if err := showManual("toolbox-rm"); err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-		return
-	}
-}
