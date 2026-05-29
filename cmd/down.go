@@ -51,20 +51,24 @@ func down(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	var image string
+	if downFlags.rmi {
+		logrus.Debugf("Inspecting container %s for image", container)
+		ctr, err := podman.InspectContainer(container)
+		if err != nil {
+			logrus.Debugf("Failed to inspect container: %s", err)
+		} else {
+			image = ctr.Image()
+		}
+	}
+
 	logrus.Debugf("Removing container %s", container)
 	if err := podman.RemoveContainer(container, true); err != nil {
 		return err
 	}
 	fmt.Printf("Removed container: %s\n", container)
 
-	if downFlags.rmi {
-		logrus.Debugf("Inspecting container %s for image", container)
-		ctr, err := podman.InspectContainer(container)
-		if err != nil {
-			logrus.Debugf("Failed to inspect removed container: %s", err)
-			return nil
-		}
-		image := ctr.Image()
+	if image != "" {
 		logrus.Debugf("Removing image %s", image)
 		if err := podman.RemoveImage(image, false); err != nil {
 			return fmt.Errorf("failed to remove image %s: %w", image, err)

@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/user"
 	"path/filepath"
@@ -594,7 +593,7 @@ func configureKerberos() error {
 
 	kcmConfigString := builder.String()
 	kcmConfigBytes := []byte(kcmConfigString)
-	if err := ioutil.WriteFile("/etc/krb5.conf.d/kcm_default_ccache", kcmConfigBytes, 0644); err != nil {
+	if err := os.WriteFile("/etc/krb5.conf.d/kcm_default_ccache", kcmConfigBytes, 0644); err != nil {
 		return errors.New("failed to configure Kerberos to use KCM as the default credential cache")
 	}
 
@@ -808,7 +807,7 @@ func configureRPM() error {
 
 	rpmConfigString := builder.String()
 	rpmConfigBytes := []byte(rpmConfigString)
-	if err := ioutil.WriteFile("/usr/lib/rpm/macros.d/macros.toad", rpmConfigBytes, 0644); err != nil {
+	if err := os.WriteFile("/usr/lib/rpm/macros.d/macros.toad", rpmConfigBytes, 0644); err != nil {
 		return fmt.Errorf("failed to configure RPM to ignore bind mounts: %w", err)
 	}
 
@@ -1251,7 +1250,7 @@ func writeTimeZone(timeZone string) error {
 	}
 
 	timeZoneBytes := []byte(timeZone + "\n")
-	if err := ioutil.WriteFile(etcTimeZone, timeZoneBytes, 0664); err != nil {
+	if err := os.WriteFile(etcTimeZone, timeZoneBytes, 0664); err != nil {
 		return fmt.Errorf("failed to create new %s: %w", etcTimeZone, err)
 	}
 

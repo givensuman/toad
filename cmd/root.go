@@ -3,7 +3,6 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/user"
 	"path/filepath"
@@ -149,9 +148,6 @@ func preRun(cmd *cobra.Command, args []string) error {
 	if !utils.IsInsideContainer() {
 		logrus.Debugf("Running on a cgroups v%d host", cgroupsVersion)
 
-		if _, err := validateSubIDRanges(cmd, args, currentUser); err != nil {
-			return err
-		}
 	}
 
 	toolbxDelayEntryPoint := os.Getenv("TOOLBX_DELAY_ENTRY_POINT")
@@ -260,7 +256,7 @@ func migrate(cmd *cobra.Command, args []string) error {
 
 	defer migrateLockFile.Close()
 
-	stampBytes, err := ioutil.ReadFile(stampPath)
+	stampBytes, err := os.ReadFile(stampPath)
 	if err != nil {
 		if !errors.Is(err, os.ErrNotExist) {
 			logrus.Debugf("Migrating to newer Podman: failed to read migration stamp file %s: %s",
@@ -295,7 +291,7 @@ func migrate(cmd *cobra.Command, args []string) error {
 	logrus.Debugf("Updating Podman version in %s", stampPath)
 
 	podmanVersionBytes := []byte(podmanVersion + "\n")
-	err = ioutil.WriteFile(stampPath, podmanVersionBytes, 0664)
+	err = os.WriteFile(stampPath, podmanVersionBytes, 0664)
 	if err != nil {
 		logrus.Debugf("Migrating to newer Podman: failed to update Podman version in migration stamp file %s: %s",
 			stampPath,
@@ -304,16 +300,6 @@ func migrate(cmd *cobra.Command, args []string) error {
 	}
 
 	return nil
-}
-
-func newSubIDError() error {
-	var builder strings.Builder
-	fmt.Fprintf(&builder, "Missing subgid and/or subuid ranges for user %s\n", currentUser.Username)
-	fmt.Fprintf(&builder, "See the podman(1), subgid(5), subuid(5) and usermod(8) manuals for more\n")
-	fmt.Fprintf(&builder, "information.")
-
-	errMsg := builder.String()
-	return errors.New(errMsg)
 }
 
 func setUpGlobals() error {
@@ -380,28 +366,4 @@ func setUpLoggers() error {
 	return nil
 }
 
-func validateSubIDRanges(cmd *cobra.Command, args []string, user *user.User) (bool, error) {
-	logrus.Debugf("Looking up sub-GID and sub-UID ranges for user %s", user.Username)
 
-	if user.Uid == "0" {
-		logrus.Debugf("Look-up not needed: user %s doesn't need them", user.Username)
-		return true, nil
-	}
-
-	if utils.IsInsideContainer() {
-		logrus.Debug("Look-up not needed: running inside a container")
-		return true, nil
-	}
-
-	if cmdName, completionCmdName := cmd.Name(), completionCmd.Name(); cmdName == completionCmdName {
-		logrus.Debugf("Look-up not needed: command %s doesn't need them", cmdName)
-		return true, nil
-	}
-
-	// if _, err := utils.ValidateSubIDRanges(user); err != nil {
-	// 	logrus.Debugf("Looking up sub-GID and sub-UID ranges failed: %s", err)
-	// 	return false, newSubIDError()
-	// }
-
-	return true, nil
-}
