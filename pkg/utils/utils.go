@@ -19,6 +19,7 @@ package utils
 import (
 	"errors"
 	"fmt"
+	"math/rand"
 	"os"
 	"os/user"
 	"path"
@@ -192,6 +193,44 @@ func init() {
 	distroDefault = distroFallback
 	releaseDefault = releaseFallback
 	ContainerNameDefault = containerNamePrefixDefault + "-" + releaseDefault
+}
+
+var (
+	adjectivePool = []string{
+		"ancient", "autumn", "billowing", "bitter", "black", "blue", "bold",
+		"broad", "broken", "calm", "cold", "cool", "crimson", "curly",
+		"damp", "dark", "dawn", "delicate", "divine", "dry", "empty",
+		"falling", "fancy", "flat", "floral", "fragrant", "frosty", "frozen",
+		"gentle", "green", "hidden", "holy", "icy", "little", "lively",
+		"long", "lucky", "misty", "morning", "muddy", "mute", "nameless",
+		"old", "orange", "patient", "plain", "polished", "proud", "purple",
+		"quiet", "rapid", "red", "restless", "rough", "royal", "shy",
+		"silent", "small", "smooth", "soft", "solid", "sparkling", "still",
+		"stubborn", "summer", "thawing", "tiny", "twilight", "wandering",
+		"weathered", "white", "wild", "windy", "winter", "wispy", "young",
+	}
+	nounPool = []string{
+		"art", "band", "bar", "base", "bird", "block", "boat", "bonus",
+		"breeze", "brook", "butterfly", "cake", "cell", "cloud", "coast",
+		"coral", "creek", "dawn", "dew", "disk", "dust", "feather", "field",
+		"fire", "flower", "fog", "forest", "frog", "frost", "glade", "glitter",
+		"grass", "haze", "heart", "hill", "king", "lab", "lake", "leaf",
+		"limit", "lion", "math", "meadow", "mode", "moon", "morning", "mountain",
+		"mouse", "mud", "night", "paper", "path", "pine", "pond", "pool",
+		"rain", "reef", "ring", "river", "rock", "rose", "salt", "sand",
+		"sea", "shadow", "ship", "silence", "sky", "smoke", "snow", "sound",
+		"star", "stone", "sun", "surf", "swamp", "table", "thunder", "tree",
+		"valley", "voice", "water", "wave", "wildflower", "wind", "wood",
+		"wreck", "yard", "zone",
+	}
+	randomNameRng = rand.New(rand.NewSource(time.Now().UnixNano()))
+)
+
+func GenerateRandomContainerName() string {
+	adj := adjectivePool[randomNameRng.Intn(len(adjectivePool))]
+	noun := nounPool[randomNameRng.Intn(len(nounPool))]
+	num := randomNameRng.Intn(10000)
+	return fmt.Sprintf("%s-%s-%04d", adj, noun, num)
 }
 
 func CallFlatpakSessionHelper() (string, error) {

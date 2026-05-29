@@ -386,6 +386,22 @@ func TestPathExistsSymlinkTargetDoesNotExist(t *testing.T) {
 	assert.False(t, exists)
 }
 
+func TestGenerateRandomContainerName(t *testing.T) {
+	name := GenerateRandomContainerName()
+	assert.NotEmpty(t, name)
+	assert.Regexp(t, `^[a-z]+-[a-z]+-\d{4}$`, name)
+}
+
+func TestGenerateRandomContainerNameMultiple(t *testing.T) {
+	names := make(map[string]bool)
+	for range 100 {
+		name := GenerateRandomContainerName()
+		names[name] = true
+	}
+	// With 77 adjectives, 97 nouns, 10000 numbers, we should get >1 unique name in 100 tries
+	assert.Greater(t, len(names), 1)
+}
+
 func TestPathExistsSymlinkTargetExists(t *testing.T) {
 	target, err := os.Executable()
 	require.NoError(t, err)

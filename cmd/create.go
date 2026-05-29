@@ -180,6 +180,10 @@ func create(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	if len(args) == 0 && createFlags.container == "" {
+		container = utils.GenerateRandomContainerName()
+	}
+
 	if err := createContainer(container, image, release, createFlags.authFile, true); err != nil {
 		return err
 	}
