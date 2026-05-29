@@ -18,6 +18,7 @@ package cmd
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -54,6 +55,8 @@ var (
 		distro    string
 		image     string
 		release   string
+		withPkgs  []string
+		withFlags []string
 	}
 
 	createToolboxShMounts = []struct {
@@ -103,6 +106,16 @@ func init() {
 		"r",
 		"",
 		"Create a Toolbx container for a different operating system release than the host")
+
+	flags.StringSliceVar(&createFlags.withPkgs,
+		"with-pkgs",
+		[]string{},
+		"Comma-separated list of packages to install in the container")
+
+	flags.StringSliceVar(&createFlags.withFlags,
+		"with-flags",
+		[]string{},
+		"Extra flags to pass to 'podman create'")
 
 	createCmd.SetHelpFunc(createHelp)
 
@@ -184,6 +197,26 @@ func create(cmd *cobra.Command, args []string) error {
 		container = utils.GenerateRandomContainerName()
 	}
 
+	if len(createFlags.withPkgs) > 0 {
+		pkgsJSON, err := json.Marshal(createFlags.withPkgs)
+		if err != nil {
+			return fmt.Errorf("failed to serialize package list: %w", err)
+		}
+		os.Setenv("TOAD_INSTALL_PKGS", string(pkgsJSON))
+	} else {
+		os.Unsetenv("TOAD_INSTALL_PKGS")
+	}
+
+	if len(createFlags.withFlags) > 0 {
+		flagsJSON, err := json.Marshal(createFlags.withFlags)
+		if err != nil {
+			return fmt.Errorf("failed to serialize extra flags: %w", err)
+		}
+		os.Setenv("TOAD_EXTRA_CREATE_FLAGS", string(flagsJSON))
+	} else {
+		os.Unsetenv("TOAD_EXTRA_CREATE_FLAGS")
+	}
+
 	if err := createContainer(container, image, release, createFlags.authFile, true); err != nil {
 		return err
 	}
@@ -257,6 +290,12 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 	if toolbxFailEntryPoint, ok := os.LookupEnv("TOOLBX_FAIL_ENTRY_POINT"); ok {
 		toolbxFailEntryPointEnvArg := "TOOLBX_FAIL_ENTRY_POINT=" + toolbxFailEntryPoint
 		toolbxFailEntryPointEnv = []string{"--env", toolbxFailEntryPointEnvArg}
+	}
+
+	var toadInstallPkgsEnv []string
+	if installPkgs, ok := os.LookupEnv("TOAD_INSTALL_PKGS"); ok {
+		toadInstallPkgsEnvArg := "TOAD_INSTALL_PKGS=" + installPkgs
+		toadInstallPkgsEnv = []string{"--env", toadInstallPkgsEnvArg}
 	}
 
 	toolboxPath := os.Getenv("TOOLBOX_PATH")
@@ -437,6 +476,7 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 
 	createArgs = append(createArgs, toolbxDelayEntryPointEnv...)
 	createArgs = append(createArgs, toolbxFailEntryPointEnv...)
+	createArgs = append(createArgs, toadInstallPkgsEnv...)
 
 	createArgs = append(createArgs, []string{
 		"--env", toolboxPathEnvArg,
@@ -477,6 +517,14 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 	createArgs = append(createArgs, pcscSocketMount...)
 	createArgs = append(createArgs, runMediaMount...)
 	createArgs = append(createArgs, toolboxShMount...)
+
+	var extraCreateFlags []string
+	if extraFlagsStr, ok := os.LookupEnv("TOAD_EXTRA_CREATE_FLAGS"); ok {
+		if err := json.Unmarshal([]byte(extraFlagsStr), &extraCreateFlags); err != nil {
+			logrus.Warnf("Failed to parse TOAD_EXTRA_CREATE_FLAGS: %s", err)
+		}
+	}
+	createArgs = append(createArgs, extraCreateFlags...)
 
 	createArgs = append(createArgs, []string{
 		imageFull,
