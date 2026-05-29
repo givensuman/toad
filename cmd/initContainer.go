@@ -17,6 +17,7 @@
 package cmd
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -28,6 +29,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/acobaugh/osrelease"
+	"github.com/givensuman/toad/pkg/pkgmanager"
 	"github.com/givensuman/toad/pkg/shell"
 	"github.com/givensuman/toad/pkg/utils"
 	"github.com/fsnotify/fsnotify"
@@ -319,6 +322,10 @@ func initContainer(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	if err := installToadPackages(); err != nil {
+		return err
+	}
+
 	logrus.Debug("Setting up daily ticker")
 
 	tickerDaily := time.NewTicker(24 * time.Hour)
@@ -391,6 +398,55 @@ func initContainer(cmd *cobra.Command, args []string) error {
 	}
 
 	// code should not be reached
+}
+
+func installToadPackages() error {
+	installPkgsStr := os.Getenv("TOAD_INSTALL_PKGS")
+	if installPkgsStr == "" {
+		return nil
+	}
+
+	var pkgs []string
+	if err := json.Unmarshal([]byte(installPkgsStr), &pkgs); err != nil {
+		return fmt.Errorf("failed to parse TOAD_INSTALL_PKGS: %w", err)
+	}
+
+	if len(pkgs) == 0 {
+		return nil
+	}
+
+	distroID, err := getContainerDistro()
+	if err != nil {
+		return fmt.Errorf("failed to detect container distro: %w", err)
+	}
+
+	mgr := pkgmanager.ResolveFromDistro(distroID)
+	if mgr == nil {
+		logrus.Warnf("No package manager for distro %q, skipping install", distroID)
+		return nil
+	}
+
+	logrus.Infof("Installing packages via %s: %v", mgr.Name(), pkgs)
+
+	updateArgs := mgr.UpdateDB()
+	if err := shell.Run(updateArgs[0], nil, os.Stdout, os.Stderr, updateArgs[1:]...); err != nil {
+		logrus.Warnf("Failed to update package DB: %s", err)
+	}
+
+	installArgs := mgr.Install(pkgs)
+	if err := shell.Run(installArgs[0], nil, os.Stdout, os.Stderr, installArgs[1:]...); err != nil {
+		return fmt.Errorf("failed to install packages: %w", err)
+	}
+
+	return nil
+}
+
+func getContainerDistro() (string, error) {
+	osRelease, err := osrelease.Read()
+	if err != nil {
+		return "", err
+	}
+	return osRelease["ID"], nil
 }
 
 func initContainerHelp(cmd *cobra.Command, args []string) {
