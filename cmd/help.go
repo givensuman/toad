@@ -79,11 +79,11 @@ func helpShowManual(args []string) error {
 	var manual string
 
 	if len(args) == 0 {
-		manual = "toolbox"
+		manual = "toad"
 	} else if args[0] == executableBase {
-		manual = "toolbox"
+		manual = "toad"
 	} else {
-		manual = "toolbox-" + args[0]
+		manual = "toad-" + args[0]
 	}
 
 	if err := showManual(manual); err != nil {

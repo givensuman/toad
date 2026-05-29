@@ -191,19 +191,6 @@ func init() {
 	containerNamePrefixDefault = containerNamePrefixFallback
 	distroDefault = distroFallback
 	releaseDefault = releaseFallback
-
-	hostID, err := getHostID()
-	if err == nil {
-		if distroObj, supportedDistro := supportedDistros[hostID]; supportedDistro {
-			release, err := getDefaultReleaseForDistro(hostID)
-			if err == nil {
-				containerNamePrefixDefault = distroObj.ContainerNamePrefix
-				distroDefault = hostID
-				releaseDefault = release
-			}
-		}
-	}
-
 	ContainerNameDefault = containerNamePrefixDefault + "-" + releaseDefault
 }
 
@@ -525,7 +512,7 @@ func GetRuntimeDirectory(targetUser *user.User) (string, error) {
 		runtimeDirectory = os.Getenv("XDG_RUNTIME_DIR")
 	}
 
-	toolboxRuntimeDirectory := path.Join(runtimeDirectory, "toolbox")
+	toolboxRuntimeDirectory := path.Join(runtimeDirectory, "toad")
 	logrus.Debugf("Creating runtime directory %s", toolboxRuntimeDirectory)
 
 	if err := os.MkdirAll(toolboxRuntimeDirectory, 0700); err != nil {
@@ -667,9 +654,7 @@ func IsP11KitClientPresent() (bool, error) {
 func SetUpConfiguration() error {
 	logrus.Debug("Setting up configuration")
 
-	configFiles := []string{
-		"/etc/containers/toolbox.conf",
-	}
+	configFiles := []string{}
 
 	userConfigDir, err := os.UserConfigDir()
 	if err != nil {
@@ -677,7 +662,7 @@ func SetUpConfiguration() error {
 		return errors.New("failed to get the user config directory")
 	}
 
-	userConfigPath := userConfigDir + "/containers/toolbox.conf"
+	userConfigPath := userConfigDir + "/toad/toad.conf"
 	configFiles = append(configFiles, []string{
 		userConfigPath,
 	}...)

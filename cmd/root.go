@@ -44,8 +44,8 @@ var (
 	executableBase string
 
 	rootCmd = &cobra.Command{
-		Use:               "toolbox",
-		Short:             "Tool for interactive command line environments on Linux",
+		Use:               "toad",
+		Short:             "Declarative development containers powered by Podman",
 		PersistentPreRunE: preRun,
 		RunE:              rootRun,
 		Version:           version.GetVersion(),
@@ -200,7 +200,7 @@ func rootHelp(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	manual := "toolbox"
+	manual := "toad"
 
 	for _, arg := range args {
 		if !strings.HasPrefix(arg, "-") {
