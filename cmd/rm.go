@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"github.com/givensuman/toad/pkg/podman"
-	"github.com/givensuman/toad/pkg/utils"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -40,13 +39,8 @@ func init() {
 }
 
 func rm(cmd *cobra.Command, args []string) error {
-	if utils.IsInsideContainer() {
-		if !utils.IsInsideToolboxContainer() {
-			return errors.New("this is not a Toad container")
-		}
-
-		exitCode, err := utils.ForwardToHost()
-		return &exitError{exitCode, err}
+	if err := requireOutsideContainer(); err != nil {
+		return err
 	}
 
 	if rmFlags.deleteAll {

@@ -58,6 +58,19 @@ func (e *exitError) Error() string {
 	}
 }
 
+func requireOutsideContainer() error {
+	if !utils.IsInsideContainer() {
+		return nil
+	}
+
+	if !utils.IsInsideToolboxContainer() {
+		return errors.New("this is not a Toad container")
+	}
+
+	exitCode, err := utils.ForwardToHost()
+	return &exitError{exitCode, err}
+}
+
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		if rootCmd.SilenceErrors {

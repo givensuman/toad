@@ -46,13 +46,8 @@ func init() {
 }
 
 func list(cmd *cobra.Command, args []string) error {
-	if utils.IsInsideContainer() {
-		if !utils.IsInsideToolboxContainer() {
-			return errors.New("this is not a Toad container")
-		}
-
-		exitCode, err := utils.ForwardToHost()
-		return &exitError{exitCode, err}
+	if err := requireOutsideContainer(); err != nil {
+		return err
 	}
 
 	lsContainers := true

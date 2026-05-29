@@ -1,11 +1,9 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/givensuman/toad/pkg/declaration"
-	"github.com/givensuman/toad/pkg/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -33,13 +31,8 @@ func init() {
 }
 
 func up(cmd *cobra.Command, args []string) error {
-	if utils.IsInsideContainer() {
-		if !utils.IsInsideToolboxContainer() {
-			return errors.New("this is not a Toad container")
-		}
-
-		exitCode, err := utils.ForwardToHost()
-		return &exitError{exitCode, err}
+	if err := requireOutsideContainer(); err != nil {
+		return err
 	}
 
 	result, err := declaration.Up(&declaration.UpOptions{
