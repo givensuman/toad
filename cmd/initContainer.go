@@ -75,12 +75,12 @@ func init() {
 	flags.IntVar(&initContainerFlags.gid,
 		"gid",
 		0,
-		"Create a user inside the Toolbx container whose numerical group ID is GID")
+		"Create a user inside the Toad container whose numerical group ID is GID")
 
 	flags.StringVar(&initContainerFlags.home,
 		"home",
 		"",
-		"Create a user inside the Toolbx container whose login directory is HOME")
+		"Create a user inside the Toad container whose login directory is HOME")
 	if err := initContainerCmd.MarkFlagRequired("home"); err != nil {
 		panic("Could not mark flag --home as required")
 	}
@@ -109,7 +109,7 @@ func init() {
 	flags.StringVar(&initContainerFlags.shell,
 		"shell",
 		"",
-		"Create a user inside the Toolbx container whose login shell is SHELL")
+		"Create a user inside the Toad container whose login shell is SHELL")
 	if err := initContainerCmd.MarkFlagRequired("shell"); err != nil {
 		panic("Could not mark flag --shell as required")
 	}
@@ -117,7 +117,7 @@ func init() {
 	flags.IntVar(&initContainerFlags.uid,
 		"uid",
 		0,
-		"Create a user inside the Toolbx container whose numerical user ID is UID")
+		"Create a user inside the Toad container whose numerical user ID is UID")
 	if err := initContainerCmd.MarkFlagRequired("uid"); err != nil {
 		panic("Could not mark flag --uid as required")
 	}
@@ -125,7 +125,7 @@ func init() {
 	flags.StringVar(&initContainerFlags.user,
 		"user",
 		"",
-		"Create a user inside the Toolbx container whose login name is USER")
+		"Create a user inside the Toad container whose login name is USER")
 	if err := initContainerCmd.MarkFlagRequired("user"); err != nil {
 		panic("Could not mark flag --user as required")
 	}
@@ -560,7 +560,7 @@ func applyCDISpecForNvidiaHookUpdateLDCache(hookArgs []string) error {
 		folderFlag = false
 	}
 
-	if err := ldConfig("toolbx-nvidia.conf", folders); err != nil {
+	if err := ldConfig("toad-nvidia.conf", folders); err != nil {
 		return err
 	}
 
@@ -584,8 +584,8 @@ func configureKerberos() error {
 	}
 
 	var builder strings.Builder
-	builder.WriteString("# Written by Toolbx\n")
-	builder.WriteString("# https://containertoolbx.org/\n")
+	builder.WriteString("# Written by Toad\n")
+	builder.WriteString("# https://toad.dev/\n")
 	builder.WriteString("#\n")
 	builder.WriteString("# # To disable the KCM credential cache, comment out the following lines.\n")
 	builder.WriteString("\n")
@@ -637,8 +637,8 @@ func configurePKCS11(targetUser *user.User) error {
 	}
 
 	var builder strings.Builder
-	fmt.Fprintf(&builder, "# Written by Toolbx\n")
-	fmt.Fprintf(&builder, "# https://containertoolbx.org/\n")
+	fmt.Fprintf(&builder, "# Written by Toad\n")
+	fmt.Fprintf(&builder, "# https://toad.dev/\n")
 	fmt.Fprintf(&builder, "\n")
 	fmt.Fprintf(&builder, "module: p11-kit-client.so\n")
 	fmt.Fprintf(&builder, "server-address: unix:path=%s\n", serverSocket)
@@ -690,11 +690,11 @@ func configurePKCS11SSHD(serverSocket string) error {
 		return nil
 	}
 
-	sshdConfig := filepath.Join(sshdConfigD, "90-toolbx.conf")
+	sshdConfig := filepath.Join(sshdConfigD, "90-toad.conf")
 
 	var builder strings.Builder
-	fmt.Fprintf(&builder, "# Written by Toolbx\n")
-	fmt.Fprintf(&builder, "# https://containertoolbx.org/\n")
+	fmt.Fprintf(&builder, "# Written by Toad\n")
+	fmt.Fprintf(&builder, "# https://toad.dev/\n")
 	fmt.Fprintf(&builder, "\n")
 	fmt.Fprintf(&builder, "SetEnv P11_KIT_SERVER_ADDRESS=unix:path=%s\n", serverSocket)
 
@@ -733,13 +733,13 @@ func configurePKCS11Su(serverSocket string) error {
 		return err
 	}
 
-	profile := filepath.Join(profileD, "toolbx-pkcs11.sh")
+	profile := filepath.Join(profileD, "toad-pkcs11.sh")
 
 	var builder strings.Builder
 	fmt.Fprintf(&builder, "# shellcheck shell=sh\n")
 	fmt.Fprintf(&builder, "#\n")
-	fmt.Fprintf(&builder, "# Written by Toolbx\n")
-	fmt.Fprintf(&builder, "# https://containertoolbx.org/\n")
+	fmt.Fprintf(&builder, "# Written by Toad\n")
+	fmt.Fprintf(&builder, "# https://toad.dev/\n")
 	fmt.Fprintf(&builder, "\n")
 	fmt.Fprintf(&builder, "export P11_KIT_SERVER_ADDRESS=unix:path=%s\n", serverSocket)
 
@@ -775,11 +775,11 @@ func configurePKCS11Sudo() error {
 		return err
 	}
 
-	sudoers := filepath.Join(sudoersD, "90-toolbx-pkcs11")
+	sudoers := filepath.Join(sudoersD, "90-toad-pkcs11")
 
 	var builder strings.Builder
-	builder.WriteString("# Written by Toolbx\n")
-	builder.WriteString("# https://containertoolbx.org/\n")
+	builder.WriteString("# Written by Toad\n")
+	builder.WriteString("# https://toad.dev/\n")
 	builder.WriteString("\n")
 	builder.WriteString("Defaults env_keep += \"P11_KIT_SERVER_ADDRESS\"\n")
 
@@ -801,14 +801,14 @@ func configureRPM() error {
 	logrus.Debug("Configuring RPM to ignore bind mounts")
 
 	var builder strings.Builder
-	builder.WriteString("# Written by Toolbx\n")
-	builder.WriteString("# https://containertoolbx.org/\n")
+	builder.WriteString("# Written by Toad\n")
+	builder.WriteString("# https://toad.dev/\n")
 	builder.WriteString("\n")
 	builder.WriteString("%_netsharedpath /dev:/media:/mnt:/proc:/sys:/tmp:/var/lib/flatpak:/var/lib/libvirt\n")
 
 	rpmConfigString := builder.String()
 	rpmConfigBytes := []byte(rpmConfigString)
-	if err := ioutil.WriteFile("/usr/lib/rpm/macros.d/macros.toolbox", rpmConfigBytes, 0644); err != nil {
+	if err := ioutil.WriteFile("/usr/lib/rpm/macros.d/macros.toad", rpmConfigBytes, 0644); err != nil {
 		return fmt.Errorf("failed to configure RPM to ignore bind mounts: %w", err)
 	}
 
@@ -964,8 +964,8 @@ func ldConfig(configFileBase string, dirs []string) error {
 	if utils.PathExists("/etc/ld.so.conf.d") {
 		if len(dirs) > 0 {
 			var builder strings.Builder
-			builder.WriteString("# Written by Toolbx\n")
-			builder.WriteString("# https://containertoolbx.org/\n")
+			builder.WriteString("# Written by Toad\n")
+			builder.WriteString("# https://toad.dev/\n")
 			builder.WriteString("\n")
 
 			configured := make(map[string]struct{})

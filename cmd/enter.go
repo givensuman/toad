@@ -18,7 +18,7 @@ var (
 
 var enterCmd = &cobra.Command{
 	Use:               "enter",
-	Short:             "Enter a Toolbx container for interactive use",
+	Short:             "Enter a Toad container for interactive use",
 	RunE:              enter,
 	ValidArgsFunction: completionContainerNamesFiltered,
 }
@@ -30,19 +30,19 @@ func init() {
 		"container",
 		"c",
 		"",
-		"Enter a Toolbx container with the given name")
+		"Enter a Toad container with the given name")
 
 	flags.StringVarP(&enterFlags.distro,
 		"distro",
 		"d",
 		"",
-		"Enter a Toolbx container for a different operating system distribution than the host")
+		"Enter a Toad container for a different operating system distribution than the host")
 
 	flags.StringVarP(&enterFlags.release,
 		"release",
 		"r",
 		"",
-		"Enter a Toolbx container for a different operating system release than the host")
+		"Enter a Toad container for a different operating system release than the host")
 
 	if err := enterCmd.RegisterFlagCompletionFunc("container", completionContainerNames); err != nil {
 		panicMsg := fmt.Sprintf("failed to register flag completion function: %v", err)
@@ -59,7 +59,7 @@ func init() {
 func enter(cmd *cobra.Command, args []string) error {
 	if utils.IsInsideContainer() {
 		if !utils.IsInsideToolboxContainer() {
-			return errors.New("this is not a Toolbx container")
+			return errors.New("this is not a Toad container")
 		}
 
 		exitCode, err := utils.ForwardToHost()

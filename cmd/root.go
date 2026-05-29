@@ -29,7 +29,7 @@ var (
 
 	rootCmd = &cobra.Command{
 		Use:               "toad",
-		Short:             "tool for oci-abstracted devcontainers",
+		Short:             "Declarative development containers powered by Podman",
 		PersistentPreRunE: preRun,
 		RunE:              rootRun,
 		Version:           version.GetVersion(),
@@ -200,7 +200,7 @@ func migrate(cmd *cobra.Command, args []string) error {
 
 	toolboxConfigDir := configDir + "/toolbox"
 	stampPath := toolboxConfigDir + "/podman-system-migrate"
-	logrus.Debugf("Toolbx config directory is %s", toolboxConfigDir)
+	logrus.Debugf("Toad config directory is %s", toolboxConfigDir)
 
 	podmanVersion, err := podman.GetVersion()
 	if err != nil {

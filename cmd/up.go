@@ -35,7 +35,7 @@ func init() {
 func up(cmd *cobra.Command, args []string) error {
 	if utils.IsInsideContainer() {
 		if !utils.IsInsideToolboxContainer() {
-			return errors.New("this is not a Toolbx container")
+			return errors.New("this is not a Toad container")
 		}
 
 		exitCode, err := utils.ForwardToHost()

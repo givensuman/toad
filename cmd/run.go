@@ -48,7 +48,7 @@ var (
 
 var runCmd = &cobra.Command{
 	Use:               "run",
-	Short:             "Run a command in an existing Toolbx container",
+	Short:             "Run a command in an existing Toad container",
 	RunE:              run,
 	ValidArgsFunction: completionEmpty,
 }
@@ -61,13 +61,13 @@ func init() {
 		"container",
 		"c",
 		"",
-		"Run command inside a Toolbx container with the given name")
+		"Run command inside a Toad container with the given name")
 
 	flags.StringVarP(&runFlags.distro,
 		"distro",
 		"d",
 		"",
-		"Run command inside a Toolbx container for a different operating system distribution than the host")
+		"Run command inside a Toad container for a different operating system distribution than the host")
 
 	flags.UintVar(&runFlags.preserveFDs,
 		"preserve-fds",
@@ -78,7 +78,7 @@ func init() {
 		"release",
 		"r",
 		"",
-		"Run command inside a Toolbx container for a different operating system release than the host")
+		"Run command inside a Toad container for a different operating system release than the host")
 
 	if err := runCmd.RegisterFlagCompletionFunc("container", completionContainerNames); err != nil {
 		panicMsg := fmt.Sprintf("failed to register flag completion function: %v", err)
@@ -95,7 +95,7 @@ func init() {
 func run(cmd *cobra.Command, args []string) error {
 	if utils.IsInsideContainer() {
 		if !utils.IsInsideToolboxContainer() {
-			return errors.New("this is not a Toolbx container")
+			return errors.New("this is not a Toad container")
 		}
 
 		exitCode, err := utils.ForwardToHost()
@@ -192,7 +192,7 @@ func runCommand(container string,
 			}
 
 			if promptForCreate {
-				prompt := "No Toolbx containers found. Create now? [y/N]"
+				prompt := "No Toad containers found. Create now? [y/N]"
 				shouldCreateContainer = askForConfirmation(prompt)
 			}
 
@@ -212,10 +212,10 @@ func runCommand(container string,
 			containerObj := containers.Get()
 			container = containerObj.Name()
 			fmt.Fprintf(os.Stderr, "Entering container %s instead.\n", container)
-			fmt.Fprintf(os.Stderr, "Use the 'create' command to create a different Toolbx.\n")
+			fmt.Fprintf(os.Stderr, "Use the 'create' command to create a different Toad.\n")
 			fmt.Fprintf(os.Stderr, "Run '%s --help' for usage.\n", executableBase)
 		} else {
-			return usageError("container %s not found\nUse the '--container' option to select a Toolbx.", container)
+			return usageError("container %s not found\nUse the '--container' option to select a Toad.", container)
 		}
 	}
 
@@ -230,7 +230,7 @@ func runCommand(container string,
 	logrus.Debugf("Entry point of container %s is %s (PID=%d)", container, entryPoint, entryPointPID)
 
 	if entryPoint != "toolbox" {
-		return usageError("container %s is too old and no longer supported\nRecreate it with Toolbx version 0.0.97 or newer.", container)
+		return usageError("container %s is too old and no longer supported\nRecreate it with Toad version 0.0.97 or newer.", container)
 	}
 
 	if err := callFlatpakSessionHelper(containerObj); err != nil {
@@ -475,7 +475,7 @@ func callFlatpakSessionHelper(container podman.Container) error {
 	}
 
 	fmt.Fprintf(os.Stderr, "Warning: container %s uses deprecated features\n", name)
-	fmt.Fprintf(os.Stderr, "Consider recreating it with Toolbx version 0.0.97 or newer.\n")
+	fmt.Fprintf(os.Stderr, "Consider recreating it with Toad version 0.0.97 or newer.\n")
 
 	if _, err := utils.CallFlatpakSessionHelper(); err != nil {
 		return err

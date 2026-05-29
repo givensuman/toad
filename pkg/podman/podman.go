@@ -267,7 +267,9 @@ func InspectImage(image string) (Image, error) {
 }
 
 func isToolbx(labels map[string]string) bool {
-	if labels["com.github.containers.toolbox"] == "true" || labels["com.github.debarshiray.toolbox"] == "true" {
+	if labels["com.github.containers.toolbox"] == "true" ||
+		labels["com.github.debarshiray.toolbox"] == "true" ||
+		labels["com.github.givensuman.toad"] == "true" {
 		return true
 	}
 

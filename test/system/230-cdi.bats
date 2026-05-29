@@ -65,7 +65,7 @@ teardown() {
   assert [ ${#lines[@]} -eq 0 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /etc/ld.so.conf.d/toolbx-nvidia.conf
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /etc/ld.so.conf.d/toad-nvidia.conf
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -915,7 +915,7 @@ teardown() {
   assert [ ${#lines[@]} -eq 0 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /etc/ld.so.conf.d/toolbx-nvidia.conf
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /etc/ld.so.conf.d/toad-nvidia.conf
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -945,11 +945,11 @@ teardown() {
   assert [ ${#lines[@]} -eq 0 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run cat /etc/ld.so.conf.d/toolbx-nvidia.conf
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run cat /etc/ld.so.conf.d/toad-nvidia.conf
 
   assert_success
-  assert_line --index 0 "# Written by Toolbx"
-  assert_line --index 1 "# https://containertoolbx.org/"
+  assert_line --index 0 "# Written by Toad"
+  assert_line --index 1 "# https://toad.dev/"
   assert_line --index 2 ""
   assert_line --index 3 "/usr/lib64"
   assert [ ${#lines[@]} -eq 4 ]
@@ -979,11 +979,11 @@ teardown() {
   assert [ ${#lines[@]} -eq 0 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run cat /etc/ld.so.conf.d/toolbx-nvidia.conf
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run cat /etc/ld.so.conf.d/toad-nvidia.conf
 
   assert_success
-  assert_line --index 0 "# Written by Toolbx"
-  assert_line --index 1 "# https://containertoolbx.org/"
+  assert_line --index 0 "# Written by Toad"
+  assert_line --index 1 "# https://toad.dev/"
   assert_line --index 2 ""
   assert_line --index 3 "/usr/lib"
   assert_line --index 4 "/usr/lib64"
@@ -1294,7 +1294,7 @@ teardown() {
   assert [ ${#lines[@]} -eq 0 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /etc/ld.so.conf.d/toolbx-nvidia.conf
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /etc/ld.so.conf.d/toad-nvidia.conf
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -1324,7 +1324,7 @@ teardown() {
   assert [ ${#lines[@]} -eq 0 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /etc/ld.so.conf.d/toolbx-nvidia.conf
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /etc/ld.so.conf.d/toad-nvidia.conf
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -1379,7 +1379,7 @@ teardown() {
   assert [ ${#lines[@]} -eq 0 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /etc/ld.so.conf.d/toolbx-nvidia.conf
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /etc/ld.so.conf.d/toad-nvidia.conf
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]

@@ -250,7 +250,7 @@ func discardInputAsync(ctx context.Context) (<-chan int, <-chan error) {
 }
 
 func createErrorContainerNotFound(container string) error {
-	return usageError("container %s not found\nUse the 'create' command to create a Toolbx.", container)
+	return usageError("container %s not found\nUse the 'create' command to create a Toad.", container)
 }
 
 func createErrorDistroWithoutRelease(distro string) error {
@@ -279,12 +279,12 @@ func createErrorInvalidRelease(hint string) error {
 
 func createErrorProfileDNotFound() error {
 	const profileD = "/etc/profile.d"
-	return usageError("directory %s not found in container\nThe shell start-up scripts must include files from %s in\ncontainers.\nGo to https://containertoolbx.org/ for further information.", profileD, profileD)
+	return usageError("directory %s not found in container\nThe shell start-up scripts must include files from %s in\ncontainers.\nGo to https://toad.dev/ for further information.", profileD, profileD)
 }
 
 func createErrorSudoersDNotFound() error {
 	const sudoersD = "/etc/sudoers.d"
-	return usageError("directory %s not found in container\nThe sudoers(5) policy must include files from %s in\ncontainers with /etc/pkcs11/modules and p11-kit-client.so.\nGo to https://containertoolbx.org/ for further information.", sudoersD, sudoersD)
+	return usageError("directory %s not found in container\nThe sudoers(5) policy must include files from %s in\ncontainers with /etc/pkcs11/modules and p11-kit-client.so.\nGo to https://toad.dev/ for further information.", sudoersD, sudoersD)
 }
 
 func getCDIFileForNvidia(targetUser *user.User) (string, error) {

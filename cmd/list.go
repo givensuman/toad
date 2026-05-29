@@ -22,7 +22,7 @@ var (
 
 var listCmd = &cobra.Command{
 	Use:               "list",
-	Short:             "List existing Toolbx containers and images",
+	Short:             "List existing Toad containers and images",
 	RunE:              list,
 	ValidArgsFunction: completionEmpty,
 }
@@ -34,13 +34,13 @@ func init() {
 		"containers",
 		"c",
 		false,
-		"List only Toolbx containers, not images")
+		"List only Toad containers, not images")
 
 	flags.BoolVarP(&listFlags.onlyImages,
 		"images",
 		"i",
 		false,
-		"List only Toolbx images, not containers")
+		"List only Toad images, not containers")
 
 	rootCmd.AddCommand(listCmd)
 }
@@ -48,7 +48,7 @@ func init() {
 func list(cmd *cobra.Command, args []string) error {
 	if utils.IsInsideContainer() {
 		if !utils.IsInsideToolboxContainer() {
-			return errors.New("this is not a Toolbx container")
+			return errors.New("this is not a Toad container")
 		}
 
 		exitCode, err := utils.ForwardToHost()

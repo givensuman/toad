@@ -46,7 +46,7 @@ const (
 )
 
 const (
-	containerNamePrefixFallback = "fedora-toolbox"
+	containerNamePrefixFallback = "fedora-toad"
 	distroFallback              = "fedora"
 	idTruncLength               = 12
 	releaseFallback             = "42"
@@ -115,7 +115,7 @@ var (
 
 	supportedDistros = map[string]Distro{
 		"arch": {
-			"arch-toolbox",
+			"arch-toad",
 			"arch-toolbox",
 			false,
 			getDefaultReleaseArch,
@@ -124,7 +124,7 @@ var (
 			parseReleaseArch,
 		},
 		"fedora": {
-			"fedora-toolbox",
+			"fedora-toad",
 			"fedora-toolbox",
 			true,
 			getDefaultReleaseFedora,
@@ -133,7 +133,7 @@ var (
 			parseReleaseFedora,
 		},
 		"rhel": {
-			"rhel-toolbox",
+			"rhel-toad",
 			"toolbox",
 			true,
 			getDefaultReleaseRHEL,
@@ -142,7 +142,7 @@ var (
 			parseReleaseRHEL,
 		},
 		"ubuntu": {
-			"ubuntu-toolbox",
+			"ubuntu-toad",
 			"ubuntu-toolbox",
 			true,
 			getDefaultReleaseUbuntu,

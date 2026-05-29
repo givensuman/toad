@@ -55,7 +55,7 @@ var (
 
 var createCmd = &cobra.Command{
 	Use:               "create",
-	Short:             "Create a new Toolbx container",
+	Short:             "Create a new Toad container",
 	RunE:              create,
 	ValidArgsFunction: completionEmpty,
 }
@@ -72,25 +72,25 @@ func init() {
 		"container",
 		"c",
 		"",
-		"Assign a different name to the Toolbx container")
+		"Assign a different name to the Toad container")
 
 	flags.StringVarP(&createFlags.distro,
 		"distro",
 		"d",
 		"",
-		"Create a Toolbx container for a different operating system distribution than the host")
+		"Create a Toad container for a different operating system distribution than the host")
 
 	flags.StringVarP(&createFlags.image,
 		"image",
 		"i",
 		"",
-		"Change the name of the base image used to create the Toolbx container")
+		"Change the name of the base image used to create the Toad container")
 
 	flags.StringVarP(&createFlags.release,
 		"release",
 		"r",
 		"",
-		"Create a Toolbx container for a different operating system release than the host")
+		"Create a Toad container for a different operating system release than the host")
 
 	flags.StringSliceVar(&createFlags.withPkgs,
 		"with-pkgs",
@@ -118,7 +118,7 @@ func init() {
 func create(cmd *cobra.Command, args []string) error {
 	if utils.IsInsideContainer() {
 		if !utils.IsInsideToolboxContainer() {
-			return errors.New("this is not a Toolbx container")
+			return errors.New("this is not a Toad container")
 		}
 
 		exitCode, err := utils.ForwardToHost()
@@ -446,8 +446,9 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 	createArgs = append(createArgs, xdgRuntimeDirEnv...)
 
 	createArgs = append(createArgs, []string{
-		"--hostname", "toolbx",
+		"--hostname", "toad",
 		"--ipc", "host",
+		"--label", "com.github.givensuman.toad=true",
 		"--label", "com.github.containers.toolbox=true",
 	}...)
 
@@ -709,7 +710,7 @@ func pullImage(image, release, authFile string) (bool, error) {
 
 	if promptForDownload {
 		if !term.IsTerminal(os.Stdin) || !term.IsTerminal(os.Stdout) {
-			return false, usageError("image required to create Toolbx container.\nUse option '--assumeyes' to download the image.")
+			return false, usageError("image required to create Toad container.\nUse option '--assumeyes' to download the image.")
 		}
 
 		shouldPullImage = showPromptForDownload(imageFull)
@@ -932,7 +933,7 @@ func showPromptForDownloadSecond(imageFull string, errFirst *promptForDownloadEr
 }
 
 func showPromptForDownload(imageFull string) bool {
-	fmt.Println("Image required to create Toolbx container.")
+	fmt.Println("Image required to create Toad container.")
 
 	shouldPullImage, err := showPromptForDownloadFirst(imageFull)
 	if err == nil {

@@ -52,11 +52,11 @@ teardown() {
   # shellcheck disable=SC2154
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run cat /usr/lib/rpm/macros.d/macros.toolbox
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run cat /usr/lib/rpm/macros.d/macros.toad
 
   assert_success
-  assert_line --index 0 "# Written by Toolbx"
-  assert_line --index 1 "# https://containertoolbx.org/"
+  assert_line --index 0 "# Written by Toad"
+  assert_line --index 1 "# https://toad.dev/"
   assert_line --index 2 ""
   assert_line --index 3 "%_netsharedpath /dev:/media:/mnt:/proc:/sys:/tmp:/var/lib/flatpak:/var/lib/libvirt"
   assert [ ${#lines[@]} -eq 4 ]
@@ -64,7 +64,7 @@ teardown() {
 
   run --keep-empty-lines --separate-stderr "$TOOLBX" run stat \
                                                            --format "%A %U:%G" \
-                                                           /usr/lib/rpm/macros.d/macros.toolbox
+                                                           /usr/lib/rpm/macros.d/macros.toad
 
   assert_success
   assert_line --index 0 "-rw-r--r-- root:root"
@@ -74,7 +74,7 @@ teardown() {
 
 # bats test_tags=arch-fedora
 @test "rpm: %_netsharedpath inside Fedora 34" {
-  create_distro_container fedora 34 fedora-toolbox-34
+  create_distro_container fedora 34 fedora-toad-34
 
   run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro fedora --release 34 rpm --eval %_netsharedpath
 
@@ -86,11 +86,11 @@ teardown() {
   run --keep-empty-lines --separate-stderr "$TOOLBX" run \
     --distro fedora \
     --release 34 \
-    cat /usr/lib/rpm/macros.d/macros.toolbox
+    cat /usr/lib/rpm/macros.d/macros.toad
 
   assert_success
-  assert_line --index 0 "# Written by Toolbx"
-  assert_line --index 1 "# https://containertoolbx.org/"
+  assert_line --index 0 "# Written by Toad"
+  assert_line --index 1 "# https://toad.dev/"
   assert_line --index 2 ""
   assert_line --index 3 "%_netsharedpath /dev:/media:/mnt:/proc:/sys:/tmp:/var/lib/flatpak:/var/lib/libvirt"
   assert [ ${#lines[@]} -eq 4 ]
@@ -101,7 +101,7 @@ teardown() {
     --release 34 \
     stat \
       --format "%A %U:%G" \
-      /usr/lib/rpm/macros.d/macros.toolbox
+      /usr/lib/rpm/macros.d/macros.toad
 
   assert_success
   assert_line --index 0 "-rw-r--r-- root:root"
@@ -111,7 +111,7 @@ teardown() {
 
 # bats test_tags=arch-fedora
 @test "rpm: %_netsharedpath inside RHEL 8.10" {
-  create_distro_container rhel 8.10 rhel-toolbox-8.10
+  create_distro_container rhel 8.10 rhel-toad-8.10
 
   run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro rhel --release 8.10 rpm --eval %_netsharedpath
 
@@ -123,11 +123,11 @@ teardown() {
   run --keep-empty-lines --separate-stderr "$TOOLBX" run \
     --distro rhel \
     --release 8.10 \
-    cat /usr/lib/rpm/macros.d/macros.toolbox
+    cat /usr/lib/rpm/macros.d/macros.toad
 
   assert_success
-  assert_line --index 0 "# Written by Toolbx"
-  assert_line --index 1 "# https://containertoolbx.org/"
+  assert_line --index 0 "# Written by Toad"
+  assert_line --index 1 "# https://toad.dev/"
   assert_line --index 2 ""
   assert_line --index 3 "%_netsharedpath /dev:/media:/mnt:/proc:/sys:/tmp:/var/lib/flatpak:/var/lib/libvirt"
   assert [ ${#lines[@]} -eq 4 ]
@@ -138,7 +138,7 @@ teardown() {
     --release 8.10 \
     stat \
       --format "%A %U:%G" \
-      /usr/lib/rpm/macros.d/macros.toolbox
+      /usr/lib/rpm/macros.d/macros.toad
 
   assert_success
   assert_line --index 0 "-rw-r--r-- root:root"

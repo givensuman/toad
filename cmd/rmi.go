@@ -20,7 +20,7 @@ var (
 
 var rmiCmd = &cobra.Command{
 	Use:               "rmi",
-	Short:             "Remove one or more Toolbx images",
+	Short:             "Remove one or more Toad images",
 	RunE:              rmi,
 	ValidArgsFunction: completionImageNamesFiltered,
 }
@@ -28,13 +28,13 @@ var rmiCmd = &cobra.Command{
 func init() {
 	flags := rmiCmd.Flags()
 
-	flags.BoolVarP(&rmiFlags.deleteAll, "all", "a", false, "Remove all Toolbx images")
+	flags.BoolVarP(&rmiFlags.deleteAll, "all", "a", false, "Remove all Toad images")
 
 	flags.BoolVarP(&rmiFlags.forceDelete,
 		"force",
 		"f",
 		false,
-		"Force the removal of Toolbx images that are used by Toolbx containers")
+		"Force the removal of Toad images that are used by Toad containers")
 
 	rootCmd.AddCommand(rmiCmd)
 }
@@ -42,7 +42,7 @@ func init() {
 func rmi(cmd *cobra.Command, args []string) error {
 	if utils.IsInsideContainer() {
 		if !utils.IsInsideToolboxContainer() {
-			return errors.New("this is not a Toolbx container")
+			return errors.New("this is not a Toad container")
 		}
 
 		exitCode, err := utils.ForwardToHost()
@@ -79,7 +79,7 @@ func rmi(cmd *cobra.Command, args []string) error {
 			}
 
 			if !imageObj.IsToolbx() {
-				fmt.Fprintf(os.Stderr, "Error: %s is not a Toolbx image\n", image)
+				fmt.Fprintf(os.Stderr, "Error: %s is not a Toad image\n", image)
 				continue
 			}
 

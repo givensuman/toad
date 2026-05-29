@@ -70,12 +70,12 @@ teardown_file() {
   run --keep-empty-lines --separate-stderr "$TOOLBX" help
 
   assert_success
-  assert_line --index 0 "toolbox - Tool for interactive command line environments on Linux"
+  assert_line --index 0 "toad - Declarative development containers powered by Podman"
   assert_line --index 2 "Common commands are:"
-  assert_line --index 3 "create    Create a new Toolbx container"
-  assert_line --index 4 "enter     Enter an existing Toolbx container"
-  assert_line --index 5 "list      List all existing Toolbx containers and images"
-  assert_line --index 7 "Go to https://containertoolbx.org/ for further information."
+  assert_line --index 3 "create    Create a new Toad container"
+  assert_line --index 4 "enter     Enter an existing Toad container"
+  assert_line --index 5 "list      List all existing Toad containers and images"
+  assert_line --index 7 "Go to https://toad.dev/ for further information."
   assert [ ${#lines[@]} -eq 8 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
@@ -103,12 +103,12 @@ teardown_file() {
   run --keep-empty-lines --separate-stderr "$TOOLBX" --help
 
   assert_success
-  assert_line --index 0 "toolbox - Tool for interactive command line environments on Linux"
+  assert_line --index 0 "toad - Declarative development containers powered by Podman"
   assert_line --index 2 "Common commands are:"
-  assert_line --index 3 "create    Create a new Toolbx container"
-  assert_line --index 4 "enter     Enter an existing Toolbx container"
-  assert_line --index 5 "list      List all existing Toolbx containers and images"
-  assert_line --index 7 "Go to https://containertoolbx.org/ for further information."
+  assert_line --index 3 "create    Create a new Toad container"
+  assert_line --index 4 "enter     Enter an existing Toad container"
+  assert_line --index 5 "list      List all existing Toad containers and images"
+  assert_line --index 7 "Go to https://toad.dev/ for further information."
   assert [ ${#lines[@]} -eq 8 ]
 
   # shellcheck disable=SC2154

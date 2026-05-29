@@ -20,7 +20,7 @@ var (
 
 var rmCmd = &cobra.Command{
 	Use:               "rm",
-	Short:             "Remove one or more Toolbx containers",
+	Short:             "Remove one or more Toad containers",
 	RunE:              rm,
 	ValidArgsFunction: completionContainerNamesFiltered,
 }
@@ -28,13 +28,13 @@ var rmCmd = &cobra.Command{
 func init() {
 	flags := rmCmd.Flags()
 
-	flags.BoolVarP(&rmFlags.deleteAll, "all", "a", false, "Remove all Toolbx containers")
+	flags.BoolVarP(&rmFlags.deleteAll, "all", "a", false, "Remove all Toad containers")
 
 	flags.BoolVarP(&rmFlags.forceDelete,
 		"force",
 		"f",
 		false,
-		"Force the removal of running and paused Toolbx containers")
+		"Force the removal of running and paused Toad containers")
 
 	rootCmd.AddCommand(rmCmd)
 }
@@ -42,7 +42,7 @@ func init() {
 func rm(cmd *cobra.Command, args []string) error {
 	if utils.IsInsideContainer() {
 		if !utils.IsInsideToolboxContainer() {
-			return errors.New("this is not a Toolbx container")
+			return errors.New("this is not a Toad container")
 		}
 
 		exitCode, err := utils.ForwardToHost()
@@ -79,7 +79,7 @@ func rm(cmd *cobra.Command, args []string) error {
 			}
 
 			if !containerObj.IsToolbx() {
-				fmt.Fprintf(os.Stderr, "Error: %s is not a Toolbx container\n", container)
+				fmt.Fprintf(os.Stderr, "Error: %s is not a Toad container\n", container)
 				continue
 			}
 
