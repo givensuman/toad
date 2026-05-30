@@ -21,7 +21,8 @@ var (
 )
 
 var listCmd = &cobra.Command{
-	Use:               "list",
+	Use:               "ls",
+	Aliases:           []string{"list"},
 	Short:             "List existing Toad containers and images",
 	RunE:              list,
 	ValidArgsFunction: completionEmpty,
