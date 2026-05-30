@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 
 	"github.com/givensuman/toad/pkg/declaration"
 	"github.com/spf13/cobra"
@@ -36,8 +38,23 @@ func up(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	dir := upFlags.path
+	if dir == "" {
+		var err error
+		dir, err = os.Getwd()
+		if err != nil {
+			return fmt.Errorf("failed to get working directory: %w", err)
+		}
+	}
+
+	_, path, err := declaration.Find(dir)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("Found toad.yaml in %s\n", filepath.Dir(path))
+
 	result, err := declaration.Up(&declaration.UpOptions{
-		Path: upFlags.path,
+		Path: dir,
 	})
 	if err != nil {
 		return err

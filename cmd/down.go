@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/givensuman/toad/pkg/declaration"
 	"github.com/givensuman/toad/pkg/podman"
@@ -44,13 +45,29 @@ func down(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	dir := downFlags.path
+	if dir == "" {
+		var err error
+		dir, err = os.Getwd()
+		if err != nil {
+			return fmt.Errorf("failed to get working directory: %w", err)
+		}
+	}
+
+	_, _, err := declaration.Find(dir)
+	if err != nil {
+		return err
+	}
+
 	container, err := declaration.Down(&declaration.DownOptions{
-		Path: downFlags.path,
+		Path: dir,
 		Rmi:  downFlags.rmi,
 	})
 	if err != nil {
 		return err
 	}
+
+	fmt.Printf("Stopping container %s...\n", container)
 
 	var image string
 	if downFlags.rmi {
@@ -64,6 +81,7 @@ func down(cmd *cobra.Command, args []string) error {
 	}
 
 	logrus.Debugf("Removing container %s", container)
+	fmt.Printf("Removing container %s...\n", container)
 	if err := podman.RemoveContainer(container, true); err != nil {
 		return err
 	}
@@ -71,6 +89,7 @@ func down(cmd *cobra.Command, args []string) error {
 
 	if image != "" {
 		logrus.Debugf("Removing image %s", image)
+		fmt.Printf("Removing image %s...\n", image)
 		if err := podman.RemoveImage(image, false); err != nil {
 			return fmt.Errorf("failed to remove image %s: %w", image, err)
 		}
