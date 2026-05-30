@@ -25,8 +25,9 @@ var downCmd = &cobra.Command{
 func init() {
 	flags := downCmd.Flags()
 
-	flags.StringVar(&downFlags.path,
+	flags.StringVarP(&downFlags.path,
 		"path",
+		"p",
 		"",
 		"Path to the directory containing toad.yaml")
 

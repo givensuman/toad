@@ -38,7 +38,7 @@ func init() {
 
 	flags.BoolVarP(&listFlags.onlyImages,
 		"images",
-		"i",
+		"",
 		false,
 		"List only Toad images, not containers")
 

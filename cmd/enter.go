@@ -25,8 +25,8 @@ func init() {
 	flags := enterCmd.Flags()
 
 	flags.StringVarP(&enterFlags.container,
-		"container",
-		"c",
+		"name",
+		"n",
 		"",
 		"Enter a Toad container with the given name")
 
@@ -42,7 +42,7 @@ func init() {
 		"",
 		"Enter a Toad container for a different operating system release than the host")
 
-	if err := enterCmd.RegisterFlagCompletionFunc("container", completionContainerNames); err != nil {
+	if err := enterCmd.RegisterFlagCompletionFunc("name", completionContainerNames); err != nil {
 		panicMsg := fmt.Sprintf("failed to register flag completion function: %v", err)
 		panic(panicMsg)
 	}
@@ -68,7 +68,7 @@ func enter(cmd *cobra.Command, args []string) error {
 		containerArg = "CONTAINER"
 	} else if enterFlags.container != "" {
 		container = enterFlags.container
-		containerArg = "--container"
+		containerArg = "--name"
 	}
 
 	if container != "" {

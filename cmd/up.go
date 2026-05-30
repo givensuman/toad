@@ -22,8 +22,9 @@ var upCmd = &cobra.Command{
 func init() {
 	flags := upCmd.Flags()
 
-	flags.StringVar(&upFlags.path,
+	flags.StringVarP(&upFlags.path,
 		"path",
+		"p",
 		"",
 		"Path to the directory containing toad.yaml")
 

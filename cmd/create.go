@@ -69,8 +69,8 @@ func init() {
 		"Path to a file with credentials for authenticating to the registry for private images")
 
 	flags.StringVarP(&createFlags.container,
-		"container",
-		"c",
+		"name",
+		"n",
 		"",
 		"Assign a different name to the Toad container")
 
@@ -142,7 +142,7 @@ func create(cmd *cobra.Command, args []string) error {
 		containerArg = "CONTAINER"
 	} else if createFlags.container != "" {
 		container = createFlags.container
-		containerArg = "--container"
+		containerArg = "--name"
 	}
 
 	container, image, release, err := resolveContainerAndImageNames(container,

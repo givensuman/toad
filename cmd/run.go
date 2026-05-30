@@ -58,8 +58,8 @@ func init() {
 	flags.SetInterspersed(false)
 
 	flags.StringVarP(&runFlags.container,
-		"container",
-		"c",
+		"name",
+		"n",
 		"",
 		"Run command inside a Toad container with the given name")
 
@@ -80,7 +80,7 @@ func init() {
 		"",
 		"Run command inside a Toad container for a different operating system release than the host")
 
-	if err := runCmd.RegisterFlagCompletionFunc("container", completionContainerNames); err != nil {
+	if err := runCmd.RegisterFlagCompletionFunc("name", completionContainerNames); err != nil {
 		panicMsg := fmt.Sprintf("failed to register flag completion function: %v", err)
 		panic(panicMsg)
 	}
@@ -114,7 +114,7 @@ func run(cmd *cobra.Command, args []string) error {
 	command := args
 
 	container, image, release, err := resolveContainerAndImageNames(runFlags.container,
-		"--container",
+		"--name",
 		runFlags.distro,
 		"",
 		runFlags.release)
@@ -210,7 +210,7 @@ func runCommand(container string,
 			fmt.Fprintf(os.Stderr, "Use the 'create' command to create a different Toad.\n")
 			fmt.Fprintf(os.Stderr, "Run '%s --help' for usage.\n", executableBase)
 		} else {
-			return usageError("container %s not found\nUse the '--container' option to select a Toad.", container)
+			return usageError("container %s not found\nUse the '--name' option to select a Toad.", container)
 		}
 	}
 
