@@ -11,6 +11,7 @@ require (
 	github.com/briandowns/spinner v1.23.2
 	github.com/docker/go-units v0.5.0
 	github.com/fsnotify/fsnotify v1.8.0
+	github.com/givensuman/go-namesgenerator v1.0.0
 	github.com/go-logfmt/logfmt v0.5.0
 	github.com/godbus/dbus/v5 v5.0.6
 	github.com/google/renameio/v2 v2.0.0
@@ -19,6 +20,7 @@ require (
 	github.com/spf13/viper v1.20.1
 	github.com/stretchr/testify v1.10.0
 	golang.org/x/sys v0.29.0
+	gopkg.in/yaml.v3 v3.0.1
 	tags.cncf.io/container-device-interface v0.8.1
 	tags.cncf.io/container-device-interface/specs-go v0.8.0
 )
@@ -26,7 +28,6 @@ require (
 require (
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/fatih/color v1.14.1 // indirect
-	github.com/givensuman/go-namesgenerator v1.0.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.1 // indirect
@@ -50,6 +51,5 @@ require (
 	golang.org/x/term v0.1.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )
