@@ -489,7 +489,7 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 	}
 
 	s := spinner.New(spinner.CharSets[9], 500*time.Millisecond, spinner.WithWriterFile(os.Stdout))
-	if logLevel := logrus.GetLevel(); logLevel < logrus.DebugLevel {
+	if !rootFlags.quiet {
 		s.Prefix = fmt.Sprintf("Creating container %s: ", container)
 		s.Start()
 		defer s.Stop()
@@ -669,7 +669,7 @@ func pullImage(image, release, authFile string) (bool, error) {
 
 	logrus.Debugf("Pulling image %s", imageFull)
 
-	if logLevel := logrus.GetLevel(); logLevel < logrus.DebugLevel {
+	if !rootFlags.quiet {
 		s := spinner.New(spinner.CharSets[9], 500*time.Millisecond, spinner.WithWriterFile(os.Stdout))
 		s.Prefix = fmt.Sprintf("Pulling %s: ", imageFull)
 		s.Start()

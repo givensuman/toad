@@ -38,6 +38,7 @@ var (
 		assumeYes bool
 		logLevel  string
 		logPodman bool
+		quiet     bool
 		verbose   int
 	}
 
@@ -114,6 +115,8 @@ func init() {
 		"Show the log output of Podman. The log level is handled by the log-level option")
 
 	persistentFlags.CountVarP(&rootFlags.verbose, "verbose", "v", "Set log-level to 'debug'")
+
+	persistentFlags.BoolVarP(&rootFlags.quiet, "quiet", "q", false, "Suppress all non-error output")
 
 	logLevels := []string{"trace", "debug", "info", "warn", "error", "fatal", "panic"}
 	completionFn := cobra.FixedCompletions(logLevels, cobra.ShellCompDirectiveNoFileComp)
@@ -353,6 +356,10 @@ func setUpLoggers() error {
 	}
 
 	logrus.SetLevel(logLevel)
+
+	if rootFlags.quiet {
+		logrus.SetLevel(logrus.ErrorLevel)
+	}
 
 	if rootFlags.verbose > 1 {
 		nvidia.SetLogLevel(logLevel)
