@@ -10,14 +10,14 @@ var helpCmd = &cobra.Command{
 	Args:  cobra.MaximumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) == 0 {
-			cmd.Root().Help()
+			_ = cmd.Root().Help()
 			return nil
 		}
 		targetCmd, _, err := cmd.Root().Find(args)
 		if err != nil {
 			return err
 		}
-		targetCmd.Help()
+		_ = targetCmd.Help()
 		return nil
 	},
 }

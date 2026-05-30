@@ -207,11 +207,7 @@ func (image *imageInspect) ID() string {
 }
 
 func (image *imageInspect) IsToolbx() bool {
-	if isToolbx(image.labels) {
-		return true
-	}
-
-	return false
+	return isToolbx(image.labels)
 }
 
 func (image *imageInspect) Labels() map[string]string {

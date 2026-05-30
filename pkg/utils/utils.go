@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"os/user"
-	"path"
 	"path/filepath"
 	"regexp"
 	"strconv"
@@ -212,7 +211,7 @@ func EnsureXdgRuntimeDirIsSet(uid int) {
 		logrus.Debug("XDG_RUNTIME_DIR is unset")
 
 		xdgRuntimeDir := fmt.Sprintf("/run/user/%d", uid)
-		os.Setenv("XDG_RUNTIME_DIR", xdgRuntimeDir)
+		_ = os.Setenv("XDG_RUNTIME_DIR", xdgRuntimeDir)
 
 		logrus.Debugf("XDG_RUNTIME_DIR set to %s", xdgRuntimeDir)
 	}
@@ -313,25 +312,6 @@ func getDefaultImageForDistro(distro, release string) string {
 
 	image := distroObj.ImageBasename + ":" + release
 	return image
-}
-
-func getDefaultReleaseForDistro(distro string) (string, error) {
-	if distro == "" {
-		panic("distro not specified")
-	}
-
-	distroObj, supportedDistro := supportedDistros[distro]
-	if !supportedDistro {
-		panicMsg := fmt.Sprintf("failed to find %s in the list of supported distributions", distro)
-		panic(panicMsg)
-	}
-
-	release, err := distroObj.GetDefaultRelease()
-	if err != nil {
-		return "", err
-	}
-
-	return release, nil
 }
 
 func GetEnvOptionsForPreservedVariables() []string {
@@ -496,7 +476,7 @@ func GetRuntimeDirectory(targetUser *user.User) (string, error) {
 		runtimeDirectory = os.Getenv("XDG_RUNTIME_DIR")
 	}
 
-	toolboxRuntimeDirectory := path.Join(runtimeDirectory, "toad")
+	toolboxRuntimeDirectory := filepath.Join(runtimeDirectory, "toad")
 	logrus.Debugf("Creating runtime directory %s", toolboxRuntimeDirectory)
 
 	if err := os.MkdirAll(toolboxRuntimeDirectory, 0700); err != nil {

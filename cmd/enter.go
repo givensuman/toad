@@ -61,7 +61,7 @@ func enter(cmd *cobra.Command, args []string) error {
 
 	var container string
 	var containerArg string
-	var defaultContainer bool = true
+	var defaultContainer = true
 
 	if len(args) != 0 {
 		container = args[0]
@@ -102,5 +102,3 @@ func enter(cmd *cobra.Command, args []string) error {
 
 	return nil
 }
-
-

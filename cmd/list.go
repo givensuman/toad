@@ -90,7 +90,7 @@ func list(cmd *cobra.Command, args []string) error {
 func listOutput(images *podman.Images, containers *podman.Containers) {
 	if images.Len() != 0 {
 		writer := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
-		fmt.Fprintf(writer, "%s\t%s\t%s\n", "IMAGE ID", "IMAGE NAME", "CREATED")
+		_, _ = fmt.Fprintf(writer, "%s\t%s\t%s\n", "IMAGE ID", "IMAGE NAME", "CREATED")
 
 		for images.Next() {
 			image := images.Get()
@@ -100,10 +100,10 @@ func listOutput(images *podman.Images, containers *podman.Containers) {
 			id := image.ID()
 			shortID := utils.ShortID(id)
 
-			fmt.Fprintf(writer, "%s\t%s\t%s\n", shortID, name, created)
+			_, _ = fmt.Fprintf(writer, "%s\t%s\t%s\n", shortID, name, created)
 		}
 
-		writer.Flush()
+		_ = writer.Flush()
 	}
 
 	if images.Len() != 0 && containers.Len() != 0 {
@@ -118,10 +118,10 @@ func listOutput(images *podman.Images, containers *podman.Containers) {
 		writer := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 
 		if term.IsTerminal(os.Stdout) {
-			fmt.Fprintf(writer, "%s", defaultColor)
+			_, _ = fmt.Fprintf(writer, "%s", defaultColor)
 		}
 
-		fmt.Fprintf(writer,
+		_, _ = fmt.Fprintf(writer,
 			"%s\t%s\t%s\t%s\t%s",
 			"CONTAINER ID",
 			"CONTAINER NAME",
@@ -130,10 +130,10 @@ func listOutput(images *podman.Images, containers *podman.Containers) {
 			"IMAGE NAME")
 
 		if term.IsTerminal(os.Stdout) {
-			fmt.Fprintf(writer, "%s", resetColor)
+			_, _ = fmt.Fprintf(writer, "%s", resetColor)
 		}
 
-		fmt.Fprintf(writer, "\n")
+		_, _ = fmt.Fprintf(writer, "\n")
 
 		for containers.Next() {
 			container := containers.Get()
@@ -152,7 +152,7 @@ func listOutput(images *podman.Images, containers *podman.Containers) {
 					color = defaultColor
 				}
 
-				fmt.Fprintf(writer, "%s", color)
+				_, _ = fmt.Fprintf(writer, "%s", color)
 			}
 
 			created := container.Created()
@@ -164,15 +164,15 @@ func listOutput(images *podman.Images, containers *podman.Containers) {
 
 			status := container.Status()
 
-			fmt.Fprintf(writer, "%s\t%s\t%s\t%s\t%s", shortID, name, created, status, image)
+			_, _ = fmt.Fprintf(writer, "%s\t%s\t%s\t%s\t%s", shortID, name, created, status, image)
 
 			if term.IsTerminal(os.Stdout) {
-				fmt.Fprintf(writer, "%s", resetColor)
+				_, _ = fmt.Fprintf(writer, "%s", resetColor)
 			}
 
-			fmt.Fprintf(writer, "\n")
+			_, _ = fmt.Fprintf(writer, "\n")
 		}
 
-		writer.Flush()
+		_ = writer.Flush()
 	}
 }

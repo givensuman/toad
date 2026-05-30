@@ -164,9 +164,9 @@ func create(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			return fmt.Errorf("failed to serialize package list: %w", err)
 		}
-		os.Setenv("TOAD_INSTALL_PKGS", string(pkgsJSON))
+		_ = os.Setenv("TOAD_INSTALL_PKGS", string(pkgsJSON))
 	} else {
-		os.Unsetenv("TOAD_INSTALL_PKGS")
+		_ = os.Unsetenv("TOAD_INSTALL_PKGS")
 	}
 
 	if len(createFlags.withFlags) > 0 {
@@ -174,9 +174,9 @@ func create(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			return fmt.Errorf("failed to serialize extra flags: %w", err)
 		}
-		os.Setenv("TOAD_EXTRA_CREATE_FLAGS", string(flagsJSON))
+		_ = os.Setenv("TOAD_EXTRA_CREATE_FLAGS", string(flagsJSON))
 	} else {
-		os.Unsetenv("TOAD_EXTRA_CREATE_FLAGS")
+		_ = os.Unsetenv("TOAD_EXTRA_CREATE_FLAGS")
 	}
 
 	if err := createContainer(container, image, release, createFlags.authFile, true); err != nil {
@@ -410,7 +410,7 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 	}
 
 	entryPoint := []string{
-		"toolbox", "--log-level", "debug",
+		executableBase, "--log-level", "debug",
 		"init-container",
 		"--gid", currentUser.Gid,
 		"--home", currentUserHomeDir,
@@ -822,7 +822,7 @@ func showPromptForDownloadSecond(imageFull string, errFirst *promptForDownloadEr
 		return false
 	}
 
-	defer term.SetState(os.Stdin, oldState)
+	defer func() { _ = term.SetState(os.Stdin, oldState) }()
 
 	lockedState := term.NewStateFrom(oldState,
 		term.WithVMIN(1),

@@ -71,11 +71,7 @@ func (container *containerInspect) Image() string {
 }
 
 func (container *containerInspect) IsToolbx() bool {
-	if isToolbx(container.labels) {
-		return true
-	}
-
-	return false
+	return isToolbx(container.labels)
 }
 
 func (container *containerInspect) Labels() map[string]string {
@@ -166,11 +162,7 @@ func (container *containerPS) Image() string {
 }
 
 func (container *containerPS) IsToolbx() bool {
-	if isToolbx(container.labels) {
-		return true
-	}
-
-	return false
+	return isToolbx(container.labels)
 }
 
 func (container *containerPS) Labels() map[string]string {

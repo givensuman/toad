@@ -155,7 +155,7 @@ func initContainer(cmd *cobra.Command, args []string) error {
 		return errors.New("failed to create /run/.toolboxenv")
 	}
 
-	defer toolboxEnvFile.Close()
+	defer func() { _ = toolboxEnvFile.Close() }()
 
 	logrus.Debug("Creating /run/.toolbxenv")
 
@@ -164,7 +164,7 @@ func initContainer(cmd *cobra.Command, args []string) error {
 		return errors.New("failed to create /run/.toolbxenv")
 	}
 
-	defer toolbxEnvFile.Close()
+	defer func() { _ = toolbxEnvFile.Close() }()
 
 	if toolbxDelayEntryPoint, ok := getDelayEntryPoint(); ok {
 		delayString := toolbxDelayEntryPoint.String()
@@ -328,7 +328,7 @@ func initContainer(cmd *cobra.Command, args []string) error {
 	}
 
 	if watcherForHost != nil {
-		defer watcherForHost.Close()
+		defer func() { _ = watcherForHost.Close() }()
 
 		watcherForHostErrors = watcherForHost.Errors
 		watcherForHostEvents = watcherForHost.Events
@@ -358,7 +358,7 @@ func initContainer(cmd *cobra.Command, args []string) error {
 		return errors.New("failed to create initialization stamp")
 	}
 
-	defer initializedStampFile.Close()
+	defer func() { _ = initializedStampFile.Close() }()
 
 	if err := initializedStampFile.Chown(initContainerFlags.uid, initContainerFlags.gid); err != nil {
 		return errors.New("failed to change ownership of initialization stamp")
@@ -610,20 +610,14 @@ func configurePKCS11(targetUser *user.User) error {
 		return nil
 	}
 
-	if ok, err := utils.IsP11KitClientPresent(); err != nil {
+	ok, err := utils.IsP11KitClientPresent()
+	if err != nil {
 		logrus.Debugf("%s: %s", logPrefix, err)
-
-		if !ok {
-			logrus.Debugf("%s: p11-kit-client.so not found", logPrefix)
-			logrus.Debugf("%s: skipping", logPrefix)
-			return nil
-		}
-	} else {
-		if !ok {
-			logrus.Debugf("%s: p11-kit-client.so not found", logPrefix)
-			logrus.Debugf("%s: skipping", logPrefix)
-			return nil
-		}
+	}
+	if !ok {
+		logrus.Debugf("%s: p11-kit-client.so not found", logPrefix)
+		logrus.Debugf("%s: skipping", logPrefix)
+		return nil
 	}
 
 	serverSocket, err := utils.GetP11KitServerSocket(targetUser)
@@ -1048,7 +1042,7 @@ func mountBind(containerPath, source, flags string) error {
 			return fmt.Errorf("failed to create regular file %s: %w", containerPath, err)
 		}
 
-		defer containerPathFile.Close()
+		defer func() { _ = containerPathFile.Close() }()
 	}
 
 	logrus.Debugf("Binding %s to %s", containerPath, source)

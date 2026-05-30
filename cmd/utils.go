@@ -35,7 +35,6 @@ func usageError(format string, args ...any) error {
 	return errors.New(msg + "\nRun '" + executableBase + " --help' for usage.")
 }
 
-
 // askForConfirmation prints prompt to stdout and waits for response from the
 // user
 //
@@ -473,17 +472,15 @@ func watchContextForEventFD(ctx context.Context, eventFD int) {
 	}
 
 	go func() {
-		defer unix.Close(eventFD)
+		defer func() { _ = unix.Close(eventFD) }()
 
-		select {
-		case <-done:
-			buffer := make([]byte, 8)
-			binary.PutUvarint(buffer, 1)
+		<-done
+		buffer := make([]byte, 8)
+		binary.PutUvarint(buffer, 1)
 
-			if _, err := unix.Write(eventFD, buffer); err != nil {
-				panicMsg := fmt.Sprintf("write(2) to eventfd failed: %s", err)
-				panic(panicMsg)
-			}
+		if _, err := unix.Write(eventFD, buffer); err != nil {
+			panicMsg := fmt.Sprintf("write(2) to eventfd failed: %s", err)
+			panic(panicMsg)
 		}
 	}()
 }

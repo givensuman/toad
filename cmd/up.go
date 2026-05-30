@@ -46,5 +46,3 @@ func up(cmd *cobra.Command, args []string) error {
 
 	return nil
 }
-
-

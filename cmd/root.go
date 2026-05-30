@@ -167,7 +167,7 @@ func preRun(cmd *cobra.Command, args []string) error {
 			return errors.New("TOOLBOX_PATH not set")
 		}
 
-		os.Setenv("TOOLBOX_PATH", executable)
+		_ = os.Setenv("TOOLBOX_PATH", executable)
 		toolboxPath = os.Getenv("TOOLBOX_PATH")
 	}
 
@@ -207,7 +207,7 @@ func migrate(cmd *cobra.Command, args []string) error {
 		return errors.New("failed to get the user config directory")
 	}
 
-	toolboxConfigDir := configDir + "/toolbox"
+	toolboxConfigDir := configDir + "/toad"
 	stampPath := toolboxConfigDir + "/podman-system-migrate"
 	logrus.Debugf("Toad config directory is %s", toolboxConfigDir)
 
@@ -254,7 +254,7 @@ func migrate(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	defer migrateLockFile.Close()
+	defer func() { _ = migrateLockFile.Close() }()
 
 	stampBytes, err := os.ReadFile(stampPath)
 	if err != nil {
@@ -365,5 +365,3 @@ func setUpLoggers() error {
 
 	return nil
 }
-
-

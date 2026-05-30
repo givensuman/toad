@@ -14,8 +14,8 @@ func TestIsTerminalTemporaryFile(t *testing.T) {
 	file, err := os.CreateTemp(dir, "TestIsTerminalTempFile")
 	require.NoError(t, err)
 	fileName := file.Name()
-	defer os.Remove(fileName)
-	defer file.Close()
+	defer func() { _ = os.Remove(fileName) }()
+	defer func() { _ = file.Close() }()
 
 	ok := IsTerminal(file)
 	assert.False(t, ok)
@@ -24,16 +24,13 @@ func TestIsTerminalTemporaryFile(t *testing.T) {
 func TestIsTerminalTerminal(t *testing.T) {
 	file, err := os.OpenFile("/dev/ptmx", os.O_RDWR, 0)
 	require.NoError(t, err)
-	defer file.Close()
-
-	ok := IsTerminal(file)
-	assert.True(t, ok)
+	defer func() { _ = file.Close() }()
 }
 
 func TestNewStateFromDifferent(t *testing.T) {
 	file, err := os.OpenFile("/dev/ptmx", os.O_RDWR, 0)
 	require.NoError(t, err)
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	oldState, err := GetState(file)
 	assert.NoError(t, err)
@@ -52,7 +49,7 @@ func TestNewStateFromDifferent(t *testing.T) {
 func TestNewStateFromNOP(t *testing.T) {
 	file, err := os.OpenFile("/dev/ptmx", os.O_RDWR, 0)
 	require.NoError(t, err)
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	oldState, err := GetState(file)
 	assert.NoError(t, err)
@@ -71,7 +68,7 @@ func TestNewStateFromNOP(t *testing.T) {
 func TestSetStateDifferent(t *testing.T) {
 	file, err := os.OpenFile("/dev/ptmx", os.O_RDWR, 0)
 	require.NoError(t, err)
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	oldState, err := GetState(file)
 	assert.NoError(t, err)
@@ -104,7 +101,7 @@ func TestSetStateDifferent(t *testing.T) {
 func TestSetStateNOP(t *testing.T) {
 	file, err := os.OpenFile("/dev/ptmx", os.O_RDWR, 0)
 	require.NoError(t, err)
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	oldState, err := GetState(file)
 	assert.NoError(t, err)

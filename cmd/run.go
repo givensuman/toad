@@ -97,7 +97,7 @@ func run(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	var defaultContainer bool = true
+	var defaultContainer = true
 
 	if runFlags.container != "" {
 		defaultContainer = false
@@ -224,7 +224,7 @@ func runCommand(container string,
 	entryPointPID := containerObj.EntryPointPID()
 	logrus.Debugf("Entry point of container %s is %s (PID=%d)", container, entryPoint, entryPointPID)
 
-	if entryPoint != "toolbox" {
+	if entryPoint != executableBase && entryPoint != "toolbox" {
 		return usageError("container %s is too old and no longer supported\nRecreate it with Toad version 0.0.97 or newer.", container)
 	}
 
@@ -391,7 +391,7 @@ func runCommandWithFallbacks(container string,
 			return &exitError{exitCode, errors.New(errMsg)}
 		case 126:
 			var err error
-			if command[0] != "toolbox" {
+			if command[0] != executableBase && command[0] != "toolbox" {
 				errMsg := fmt.Sprintf("failed to invoke command %s in container %s",
 					command[0],
 					container)
@@ -437,7 +437,7 @@ func runCommandWithFallbacks(container string,
 						container)
 					return &exitError{exitCode, errors.New(errMsg)}
 				}
-			} else if command[0] == "toolbox" {
+			} else if command[0] == executableBase || command[0] == "toolbox" {
 				return &exitError{exitCode, nil}
 			} else {
 				return nil
@@ -594,7 +594,7 @@ func ensureContainerIsInitialized(container string, entryPointPID int, timestamp
 	var watcherForStampEvents chan fsnotify.Event
 
 	if watcherForStamp != nil {
-		defer watcherForStamp.Close()
+		defer func() { _ = watcherForStamp.Close() }()
 
 		toolboxRuntimeDirectory, err := utils.GetRuntimeDirectory(currentUser)
 		if err != nil {
@@ -700,7 +700,7 @@ func followEntryPointLogsAsync(ctx context.Context, container string, since time
 	errCh := make(chan error)
 
 	go func() {
-		defer writer.Close()
+		defer func() { _ = writer.Close() }()
 
 		if err := podman.LogsContext(ctx, container, true, since, writer); err != nil {
 			errCh <- err
@@ -709,7 +709,7 @@ func followEntryPointLogsAsync(ctx context.Context, container string, since time
 	}()
 
 	go func() {
-		defer reader.Close()
+		defer func() { _ = reader.Close() }()
 		defer close(retValCh)
 
 		scanner := bufio.NewScanner(reader)
@@ -773,11 +773,7 @@ func handlePollingTickForStamp(time time.Time, initializedStamp string) bool {
 	timeString := time.String()
 	logrus.Debugf("Handling polling tick %s", timeString)
 
-	if utils.PathExists(initializedStamp) {
-		return true
-	}
-
-	return false
+	return utils.PathExists(initializedStamp)
 }
 
 func isCommandPresent(container, command string) (bool, error) {
@@ -1017,7 +1013,7 @@ func startP11KitServer() ([]string, error) {
 		return nil, err
 	}
 
-	defer serverSocketLockFile.Close()
+	defer func() { _ = serverSocketLockFile.Close() }()
 
 	serverSocketAddress := fmt.Sprintf("P11_KIT_SERVER_ADDRESS=unix:path=%s", serverSocket)
 	serverEnviron := []string{
