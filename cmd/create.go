@@ -677,13 +677,7 @@ func pullImage(image, release, authFile string) (bool, error) {
 	}
 
 	if err := podman.Pull(imageFull, authFile); err != nil {
-		var builder strings.Builder
-		fmt.Fprintf(&builder, "failed to pull image %s\n", imageFull)
-		fmt.Fprintf(&builder, "If it was a private image, log in with: podman login %s\n", domain)
-		fmt.Fprintf(&builder, "Use '%s --verbose ...' for further details.", executableBase)
-
-		errMsg := builder.String()
-		return false, errors.New(errMsg)
+		return false, fmt.Errorf("failed to pull image %s\nIf it was a private image, log in with: podman login %s\nUse '%s --verbose ...' for further details", imageFull, domain, executableBase)
 	}
 
 	return true, nil
@@ -694,7 +688,7 @@ func showPromptForDownload(imageFull string) bool {
 	fmt.Printf("Download %s? [y/N]: ", imageFull)
 
 	var response string
-	fmt.Scanln(&response)
+	_, _ = fmt.Scanln(&response)
 	response = strings.ToLower(strings.TrimSpace(response))
 
 	return response == "y" || response == "yes"
@@ -727,5 +721,3 @@ func systemdPathBusEscape(path string) string {
 	}
 	return string(n)
 }
-
-

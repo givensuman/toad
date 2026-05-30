@@ -959,21 +959,11 @@ func startContainer(container string) error {
 	logrus.Debugf("Migrating containers to OCI runtime %s", ociRuntimeRequired)
 
 	if err := podman.SystemMigrate(ociRuntimeRequired); err != nil {
-		var builder strings.Builder
-		fmt.Fprintf(&builder, "failed to migrate containers to OCI runtime %s\n", ociRuntimeRequired)
-		fmt.Fprintf(&builder, "Factory reset with: podman system reset")
-
-		errMsg := builder.String()
-		return errors.New(errMsg)
+		return fmt.Errorf("failed to migrate containers to OCI runtime %s\nFactory reset with: podman system reset", ociRuntimeRequired)
 	}
 
 	if err := podman.Start(container, nil); err != nil {
-		var builder strings.Builder
-		fmt.Fprintf(&builder, "container %s doesn't support cgroups v%d\n", container, cgroupsVersion)
-		fmt.Fprintf(&builder, "Factory reset with: podman system reset")
-
-		errMsg := builder.String()
-		return errors.New(errMsg)
+		return fmt.Errorf("container %s doesn't support cgroups v%d\nFactory reset with: podman system reset", container, cgroupsVersion)
 	}
 
 	return nil
