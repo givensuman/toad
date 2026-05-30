@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -11,21 +10,15 @@ import (
 	"time"
 
 	"github.com/briandowns/spinner"
-	"github.com/docker/go-units"
 	"github.com/givensuman/go-namesgenerator"
 	"github.com/givensuman/toad/pkg/podman"
 	"github.com/givensuman/toad/pkg/shell"
-	"github.com/givensuman/toad/pkg/skopeo"
 	"github.com/givensuman/toad/pkg/term"
 	"github.com/givensuman/toad/pkg/utils"
 	"github.com/godbus/dbus/v5"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
-
-type promptForDownloadError struct {
-	ImageSize string
-}
 
 const (
 	alpha    = `abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ`
@@ -555,47 +548,6 @@ func getEnterCommand(container string) string {
 	return enterCommand
 }
 
-func getImageSizeFromRegistry(ctx context.Context, imageFull string) (string, error) {
-	image, err := skopeo.Inspect(ctx, imageFull)
-	if err != nil {
-		return "", err
-	}
-
-	if image.LayersData == nil {
-		return "", errors.New("'skopeo inspect' did not have LayersData")
-	}
-
-	var imageSizeFloat float64
-
-	for _, layer := range image.LayersData {
-		if layerSize, err := layer.Size.Float64(); err != nil {
-			return "", err
-		} else {
-			imageSizeFloat += layerSize
-		}
-	}
-
-	imageSizeHuman := units.HumanSize(imageSizeFloat)
-	return imageSizeHuman, nil
-}
-
-func getImageSizeFromRegistryAsync(ctx context.Context, imageFull string) (<-chan string, <-chan error) {
-	retValCh := make(chan string)
-	errCh := make(chan error)
-
-	go func() {
-		imageSize, err := getImageSizeFromRegistry(ctx, imageFull)
-		if err != nil {
-			errCh <- err
-			return
-		}
-
-		retValCh <- imageSize
-	}()
-
-	return retValCh, errCh
-}
-
 func getServiceSocket(serviceName string, unitName string) (string, error) {
 	logrus.Debugf("Resolving path to the %s socket", serviceName)
 
@@ -737,212 +689,15 @@ func pullImage(image, release, authFile string) (bool, error) {
 	return true, nil
 }
 
-func createPromptForDownload(imageFull, imageSize string) string {
-	var prompt string
-	if imageSize == "" {
-		prompt = fmt.Sprintf("Download %s? [y/N]:", imageFull)
-	} else {
-		prompt = fmt.Sprintf("Download %s (%s)? [y/N]:", imageFull, imageSize)
-	}
-
-	return prompt
-}
-
-func showPromptForDownloadFirst(imageFull string) (bool, error) {
-	prompt := createPromptForDownload(imageFull, " ... MB")
-
-	parentCtx := context.Background()
-	askCtx, askCancel := context.WithCancelCause(parentCtx)
-	defer askCancel(errors.New("clean-up"))
-
-	askCh, askErrCh := askForConfirmationAsync(askCtx, prompt, nil)
-
-	imageSizeCtx, imageSizeCancel := context.WithCancelCause(parentCtx)
-	defer imageSizeCancel(errors.New("clean-up"))
-
-	imageSizeCh, imageSizeErrCh := getImageSizeFromRegistryAsync(imageSizeCtx, imageFull)
-
-	var imageSize string
-	var shouldPullImage bool
-
-	select {
-	case val := <-askCh:
-		shouldPullImage = val
-		cause := fmt.Errorf("%w: received confirmation without image size", context.Canceled)
-		imageSizeCancel(cause)
-	case err := <-askErrCh:
-		shouldPullImage = false
-		cause := fmt.Errorf("failed to ask for confirmation without image size: %w", err)
-		imageSizeCancel(cause)
-	case val := <-imageSizeCh:
-		imageSize = val
-		cause := fmt.Errorf("%w: received image size", context.Canceled)
-		askCancel(cause)
-	case err := <-imageSizeErrCh:
-		cause := fmt.Errorf("failed to get image size: %w", err)
-		askCancel(cause)
-	}
-
-	if imageSizeCtx.Err() != nil && askCtx.Err() == nil {
-		cause := context.Cause(imageSizeCtx)
-		logrus.Debugf("Show prompt for download: image size canceled: %s", cause)
-		return shouldPullImage, nil
-	}
-
-	var done bool
-
-	if imageSizeCtx.Err() == nil && askCtx.Err() != nil {
-		select {
-		case val := <-askCh:
-			logrus.Debugf("Show prompt for download: received pending confirmation without image size")
-			shouldPullImage = val
-			done = true
-		case err := <-askErrCh:
-			logrus.Debugf("Show prompt for download: failed to ask for confirmation without image size: %s",
-				err)
-		}
-	} else {
-		panic("code should not be reached")
-	}
-
-	cause := context.Cause(askCtx)
-	logrus.Debugf("Show prompt for download: ask canceled: %s", cause)
-
-	if done {
-		return shouldPullImage, nil
-	}
-
-	return false, &promptForDownloadError{imageSize}
-}
-
-func showPromptForDownloadSecond(imageFull string, errFirst *promptForDownloadError) bool {
-	oldState, err := term.GetState(os.Stdin)
-	if err != nil {
-		logrus.Debugf("Show prompt for download: failed to get terminal state: %s", err)
-		return false
-	}
-
-	defer func() { _ = term.SetState(os.Stdin, oldState) }()
-
-	lockedState := term.NewStateFrom(oldState,
-		term.WithVMIN(1),
-		term.WithVTIME(0),
-		term.WithoutECHO(),
-		term.WithoutICANON())
-
-	if err := term.SetState(os.Stdin, lockedState); err != nil {
-		logrus.Debugf("Show prompt for download: failed to set terminal state: %s", err)
-		return false
-	}
-
-	parentCtx := context.Background()
-	discardCtx, discardCancel := context.WithCancelCause(parentCtx)
-	defer discardCancel(errors.New("clean-up"))
-
-	discardCh, discardErrCh := discardInputAsync(discardCtx)
-
-	var prompt string
-	if errors.Is(errFirst, context.Canceled) {
-		prompt = createPromptForDownload(imageFull, errFirst.ImageSize)
-	} else {
-		prompt = createPromptForDownload(imageFull, "")
-	}
-
-	fmt.Printf("\r")
-
-	askCtx, askCancel := context.WithCancelCause(parentCtx)
-	defer askCancel(errors.New("clean-up"))
-
-	var askForConfirmationPreFnDone bool
-	askForConfirmationPreFn := func() error {
-		defer discardCancel(errors.New("clean-up"))
-		if askForConfirmationPreFnDone {
-			return nil
-		}
-
-		// Erase to end of line
-		fmt.Printf("\033[K")
-
-		// Save the cursor position.
-		fmt.Printf("\033[s")
-
-		if err := term.SetState(os.Stdin, oldState); err != nil {
-			return fmt.Errorf("failed to restore terminal state: %w", err)
-		}
-
-		cause := errors.New("terminal restored")
-		discardCancel(cause)
-
-		err := <-discardErrCh
-		if !errors.Is(err, context.Canceled) {
-			return fmt.Errorf("failed to discard input: %w", err)
-		}
-
-		logrus.Debugf("Show prompt for download: stopped discarding input: %s", err)
-
-		discardTotal := <-discardCh
-		logrus.Debugf("Show prompt for download: discarded input: %d bytes", discardTotal)
-
-		if discardTotal == 0 {
-			askForConfirmationPreFnDone = true
-			return nil
-		}
-
-		if err := term.SetState(os.Stdin, lockedState); err != nil {
-			return fmt.Errorf("failed to set terminal state: %w", err)
-		}
-
-		discardCtx, discardCancel = context.WithCancelCause(parentCtx)
-		// A deferred call can't be used for this CancelCauseFunc,
-		// because the 'discard' operation needs to continue running
-		// until the next invocation of this function.  It relies on
-		// the guarantee that AskForConfirmationAsync will always call
-		// its askForConfirmationPreFunc as long as the function
-		// returns errContinue.
-
-		discardCh, discardErrCh = discardInputAsync(discardCtx)
-
-		// Restore the cursor position
-		fmt.Printf("\033[u")
-
-		// Erase to end of line
-		fmt.Printf("\033[K")
-
-		fmt.Printf("...\n")
-		return errContinue
-	}
-
-	askCh, askErrCh := askForConfirmationAsync(askCtx, prompt, askForConfirmationPreFn)
-	var shouldPullImage bool
-
-	select {
-	case val := <-askCh:
-		logrus.Debug("Show prompt for download: received confirmation with image size")
-		shouldPullImage = val
-	case err := <-askErrCh:
-		logrus.Debugf("Show prompt for download: failed to ask for confirmation with image size: %s", err)
-		shouldPullImage = false
-	}
-
-	return shouldPullImage
-}
-
 func showPromptForDownload(imageFull string) bool {
 	fmt.Println("Image required to create Toad container.")
+	fmt.Printf("Download %s? [y/N]: ", imageFull)
 
-	shouldPullImage, err := showPromptForDownloadFirst(imageFull)
-	if err == nil {
-		return shouldPullImage
-	}
+	var response string
+	fmt.Scanln(&response)
+	response = strings.ToLower(strings.TrimSpace(response))
 
-	var errPromptForDownload *promptForDownloadError
-	if !errors.As(err, &errPromptForDownload) {
-		panicMsg := fmt.Sprintf("unexpected %T: %s", err, err)
-		panic(panicMsg)
-	}
-
-	shouldPullImage = showPromptForDownloadSecond(imageFull, errPromptForDownload)
-	return shouldPullImage
+	return response == "y" || response == "yes"
 }
 
 // systemdNeedsEscape checks whether a byte in a potential dbus ObjectPath needs to be escaped
@@ -973,16 +728,4 @@ func systemdPathBusEscape(path string) string {
 	return string(n)
 }
 
-func (err *promptForDownloadError) Error() string {
-	innerErr := err.Unwrap()
-	errMsg := innerErr.Error()
-	return errMsg
-}
 
-func (err *promptForDownloadError) Unwrap() error {
-	if err.ImageSize == "" {
-		return errors.New("failed to get image size")
-	}
-
-	return context.Canceled
-}
